@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>EV vs ICE — TCO/NPV con Sensibilidades</title>
+<style>
+  :root { --bg:#0b1220; --card:#141c2c; --ink:#e9eef7; --muted:#9fb0c9; --accent:#5dd0a6; --danger:#ff6b6b; }
+  *{box-sizing:border-box}
+  body { margin:0; font-family: Inter, system-ui, Arial; color:var(--ink); background:linear-gradient(120deg,#0b1220,#0f1a31 55%); }
+  .wrap { max-width:1200px; margin: 32px auto; padding: 0 16px; }
+  h1 { font-size: 28px; margin: 0 0 8px; }
+  p.subtitle { color: var(--muted); margin: 0 0 24px; }
+  .grid { display:grid; grid-template-columns: 1.2fr 1fr; gap:16px; }
+  .card { background: var(--card); border-radius:18px; padding:16px; box-shadow: 0 10px 30px rgba(0,0,0,0.25); }
+  .card h2 { margin:0 0 8px; font-size:18px; }
+  .row { display:grid; grid-template-columns: 1.3fr 0.7fr; gap:12px; margin:8px 0; align-items:center; }
+  .row > div { display:flex; gap:8px; align-items:center; }
+  label { font-size: 13px; color: var(--muted); }
+  input, select { width:100%; padding:8px 10px; border-radius:10px; border:1px solid #27324a; background:#0d1422; color:var(--ink); }
+  .small { font-size:12px; color:var(--muted); }
+  .full { grid-column: 1 / -1; }
+  .btn { background: var(--accent); color:#072a1f; border:none; border-radius:12px; padding:12px 14px; font-weight:700; cursor:pointer; }
+  .btn2 { background: #2f8fff; color:#07192a; border:none; border-radius:12px; padding:12px 14px; font-weight:700; cursor:pointer; }
+  .btn-danger { background: var(--danger); color:#2a0707; }
+  .actions { display:flex; gap:8px; flex-wrap:wrap; }
+  .result { font-size:14px; line-height:1.5; }
+  .winner { font-weight:700; color: var(--accent); }
+  .muted { color: var(--muted); }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  .grid2 { display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
+  .hdr { display:flex; gap:12px; align-items:center; justify-content:space-between; margin-bottom:8px; }
+  .kpi { display:grid; grid-template-columns: repeat(3,1fr); gap:12px; margin-top:8px; }
+  .pill { background:#0d1422; border:1px solid #27324a; border-radius:12px; padding:8px 10px; }
+  @media (max-width: 1020px) { .grid { grid-template-columns: 1fr; } .kpi{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hdr">
+    <div>
+      <h1>EV vs ICE — Comparador económico (TCO / NPV / Costo por km)</h1>
+      <p class="subtitle">Usa los sliders y escenarios. Luego exporta PDF/CSV.</p>
+    </div>
+    <div class="actions">
+      <button class="btn2" id="exportCsv">Exportar CSV (Excel)</button>
+      <button class="btn" id="exportPdf">Exportar PDF</button>
+    </div>
+  </div>
+
+  <div class="grid">
+    <!-- Inputs -->
+    <div class="card">
+      <h2>Supuestos (con tus datos base)</h2>
+      <div class="row">
+        <label>Escenario rápido</label>
+        <div>
+          <select id="escenario">
+            <option value="custom">Personalizado</option>
+            <option value="H3r8">H=3 años, r=8%</option>
+            <option value="H5r8">H=5 años, r=8%</option>
+            <option value="H8r8">H=8 años, r=8%</option>
+            <option value="H3r12">H=3 años, r=12%</option>
+            <option value="H5r12">H=5 años, r=12%</option>
+            <option value="H8r12" selected>H=8 años, r=12%</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div class="pill">
+          <label>Kilómetros por año</label>
+          <input id="km" type="range" min="8000" max="30000" step="500" value="15000" />
+          <div class="small"><span id="km_v">15.000</span> km/año</div>
+        </div>
+        <div class="pill">
+          <label>Tasa de descuento r (%)</label>
+          <input id="r" type="range" min="6" max="16" step="0.5" value="12" />
+          <div class="small"><span id="r_v">12</span>%</div>
+        </div>
+        <div class="pill">
+          <label>Horizonte H (años)</label>
+          <input id="H" type="range" min="3" max="10" step="1" value="8" />
+          <div class="small"><span id="H_v">8</span> años</div>
+        </div>
+        <div class="pill">
+          <label>Valor residual EV (% MSRP)</label>
+          <input id="res_ev" type="range" min="20" max="55" step="1" value="40" />
+          <div class="small"><span id="res_ev_v">40</span>%</div>
+        </div>
+        <div class="pill">
+          <label>Valor residual ICE (% MSRP)</label>
+          <input id="res_ice" type="range" min="25" max="60" step="1" value="35" />
+          <div class="small"><span id="res_ice_v">35</span>%</div>
+        </div>
+        <div class="pill">
+          <label>% carga en hogar EV</label>
+          <input id="mix_home" type="range" min="0" max="100" step="1" value="70" />
+          <div class="small"><span id="mix_home_v">70</span>% (resto pública)</div>
+        </div>
+      </div>
+
+      <h2 style="margin-top:16px">Energía & mantención</h2>
+      <div class="grid2">
+        <div class="pill">
+          <label>Consumo EV (kWh/100 km)</label>
+          <input id="kwh100" type="range" min="11" max="20" step="0.5" value="15" />
+          <div class="small"><span id="kwh100_v">15.0</span> kWh/100 km</div>
+        </div>
+        <div class="pill">
+          <label>Precio kWh hogar (CLP)</label>
+          <input id="p_kwh_home" type="range" min="100" max="300" step="5" value="200" />
+          <div class="small">CLP <span id="p_kwh_home_v">200</span>/kWh</div>
+        </div>
+        <div class="pill">
+          <label>Precio kWh pública (CLP)</label>
+          <input id="p_kwh_pub" type="range" min="200" max="500" step="10" value="380" />
+          <div class="small">CLP <span id="p_kwh_pub_v">380</span>/kWh</div>
+        </div>
+        <div class="pill">
+          <label>Consumo ICE (L/100 km)</label>
+          <input id="l100" type="range" min="5" max="10" step="0.1" value="7" />
+          <div class="small"><span id="l100_v">7.0</span> L/100 km</div>
+        </div>
+        <div class="pill">
+          <label>Precio combustible (CLP/L)</label>
+          <input id="p_fuel" type="range" min="900" max="1600" step="10" value="1200" />
+          <div class="small">CLP <span id="p_fuel_v">1.200</span>/L</div>
+        </div>
+        <div class="pill">
+          <label>Mantención EV (CLP/año)</label>
+          <input id="mant_ev" type="range" min="100000" max="350000" step="10000" value="200000" />
+          <div class="small">CLP <span id="mant_ev_v">200.000</span>/año</div>
+        </div>
+        <div class="pill">
+          <label>Mantención ICE (CLP/año)</label>
+          <input id="mant_ice" type="range" min="250000" max="600000" step="10000" value="380000" />
+          <div class="small">CLP <span id="mant_ice_v">380.000</span>/año</div>
+        </div>
+      </div>
+
+      <h2 style="margin-top:16px">Compra</h2>
+      <div class="grid2">
+        <div class="pill">
+          <label>Precio EV (CLP)</label>
+          <input id="precio_ev" type="range" min="12000000" max="30000000" step="100000" value="19000000" />
+          <div class="small">CLP <span id="precio_ev_v">19.000.000</span></div>
+        </div>
+        <div class="pill">
+          <label>Incentivo/Bono EV (CLP)</label>
+          <input id="inc_ev" type="range" min="0" max="5000000" step="50000" value="0" />
+          <div class="small">CLP <span id="inc_ev_v">0</span></div>
+        </div>
+        <div class="pill">
+          <label>Precio ICE (CLP)</label>
+          <input id="precio_ice" type="range" min="9000000" max="25000000" step="100000" value="13000000" />
+          <div class="small">CLP <span id="precio_ice_v">13.000.000</span></div>
+        </div>
+      </div>
+
+      <h2 style="margin-top:16px">Riesgos / Eventos</h2>
+      <div class="row">
+        <label>Provisión cambio batería EV (año 8)</label>
+        <div>
+          <input type="checkbox" id="chg_batt" checked />
+          <span class="small">Costo = kWh batería × costo/kWh</span>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="pill">
+          <label>Tamaño batería EV (kWh)</label>
+          <input id="batt_kwh" type="range" min="28" max="40" step="0.5" value="38" />
+          <div class="small"><span id="batt_kwh_v">38.0</span> kWh</div>
+        </div>
+        <div class="pill">
+          <label>Costo pack (CLP/kWh)</label>
+          <input id="batt_cost" type="range" min="60000" max="150000" step="5000" value="100000" />
+          <div class="small">CLP <span id="batt_cost_v">100.000</span>/kWh</div>
+        </div>
+        <div class="pill">
+          <label>ICE: mantención “alta” desde año 6</label>
+          <input id="ice_bump" type="range" min="0" max="300000" step="10000" value="150000" />
+          <div class="small">+CLP <span id="ice_bump_v">150.000</span>/año (año ≥ 6)</div>
+        </div>
+      </div>
+
+      <div class="row full" style="margin-top:12px">
+        <button class="btn" id="calc">Calcular</button>
+        <button class="btn btn-danger" id="reset">Reset</button>
+      </div>
+      <p class="small" style="margin-top:8px">Nota mezcla de carga: indicastes 70% hogar y 20% pública; acá se normaliza a <b>70% hogar / 30% pública</b> (ajústalo si quieres).</p>
+    </div>
+
+    <!-- Resultados -->
+    <div class="card" id="report">
+      <h2>Resultados</h2>
+      <div class="kpi">
+        <div class="pill"><div class="small muted">Recomendación</div><div id="win" class="winner">—</div></div>
+        <div class="pill"><div class="small muted">Diferencia NPV (a favor del ganador)</div><div id="diff" class="mono">—</div></div>
+        <div class="pill"><div class="small muted">Costo por km (ganador)</div><div id="lco" class="mono">—</div></div>
+      </div>
+      <div id="out" class="result" style="margin-top:12px">
+        <p class="muted">Completa/ajusta los supuestos y presiona <b>Calcular</b>.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <h2>Notas y fuentes breves</h2>
+    <ul class="small">
+      <li><b>Mantención EV vs ICE:</b> estudios (Consumer Reports / AAA) muestran que EV tiende a costar ~30–50% menos en mantención/rep. a lo largo de la vida útil. En Chile, valores de mantención oficial para modelos a combustión típicos varían aprox. entre <b>CLP 185.000–400.000</b> por servicio (10.000 km), según ejemplo Chevrolet Groove (jun-2025). Se usa <b>CLP 200.000 EV</b> y <b>CLP 380.000 ICE</b> como base ajustable.</li>
+      <li><b>Pack batería:</b> costo de referencia paramétrico; puedes usar 100.000 CLP/kWh (~USD 111/kWh fin-2024). Marca/servicio local puede diferir.</li>
+      <li><b>Advertencia:</b> Depreciación EV puede ser mayor en plazos cortos; ajusta residuales con tu experiencia de mercado.</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+function nfmt(n, d=0){ return n.toLocaleString('es-CL',{maximumFractionDigits:d}); }
+function nfmt2(n){ return n.toLocaleString('es-CL',{maximumFractionDigits:2}); }
+function get(id){ return document.getElementById(id); }
+
+const defaults = {
+  km:15000, r:12, H:8,
+  res_ev:40, res_ice:35,
+  kwh100:15, p_kwh_home:200, p_kwh_pub:380, mix_home:70,
+  l100:7, p_fuel:1200,
+  mant_ev:200000, mant_ice:380000,
+  precio_ev:19000000, inc_ev:0, precio_ice:13000000,
+  chg_batt:true, batt_kwh:38, batt_cost:100000, ice_bump:150000
+};
+
+function syncLabels(){
+  get('km_v').textContent = nfmt(+get('km').value);
+  get('r_v').textContent = +get('r').value;
+  get('H_v').textContent = +get('H').value;
+  get('res_ev_v').textContent = +get('res_ev').value;
+  get('res_ice_v').textContent = +get('res_ice').value;
+  get('mix_home_v').textContent = +get('mix_home').value;
+
+  get('kwh100_v').textContent = (+get('kwh100').value).toFixed(1);
+  get('p_kwh_home_v').textContent = nfmt(+get('p_kwh_home').value);
+  get('p_kwh_pub_v').textContent = nfmt(+get('p_kwh_pub').value);
+  get('l100_v').textContent = (+get('l100').value).toFixed(1);
+  get('p_fuel_v').textContent = nfmt(+get('p_fuel').value);
+
+  get('mant_ev_v').textContent = nfmt(+get('mant_ev').value);
+  get('mant_ice_v').textContent = nfmt(+get('mant_ice').value);
+
+  get('precio_ev_v').textContent = nfmt(+get('precio_ev').value);
+  get('inc_ev_v').textContent = nfmt(+get('inc_ev').value);
+  get('precio_ice_v').textContent = nfmt(+get('precio_ice').value);
+
+  get('batt_kwh_v').textContent = (+get('batt_kwh').value).toFixed(1);
+  get('batt_cost_v').textContent = nfmt(+get('batt_cost').value);
+  get('ice_bump_v').textContent = nfmt(+get('ice_bump').value);
+}
+
+['km','r','H','res_ev','res_ice','mix_home','kwh100','p_kwh_home','p_kwh_pub','l100','p_fuel','mant_ev','mant_ice','precio_ev','inc_ev','precio_ice','batt_kwh','batt_cost','ice_bump'].forEach(id=>{
+  get(id).addEventListener('input', syncLabels);
+});
+
+get('escenario').addEventListener('change', () => {
+  const v = get('escenario').value;
+  const map = {H3r8:{H:3,r:8}, H5r8:{H:5,r:8}, H8r8:{H:8,r:8}, H3r12:{H:3,r:12}, H5r12:{H:5,r:12}, H8r12:{H:8,r:12}};
+  if (v!=='custom'){
+    get('H').value = map[v].H;
+    get('r').value = map[v].r;
+    syncLabels();
+  }
+});
+
+function energiaEV(km,kwh100,p_home,p_pub,mix_home){
+  const kwh_year = (km/100)*kwh100;
+  const mix = Math.min(Math.max(mix_home/100,0),1);
+  const p_mix = mix * p_home + (1-mix) * p_pub;
+  return kwh_year * p_mix;
+}
+function energiaICE(km,l100,p_fuel){
+  const liters = (km/100)*l100;
+  return liters * p_fuel;
+}
+
+function npvOption(params) {
+  const { H, r, km, precio, incentivo, mant, seguro, patentes, otros, energia_anual, residual_pct, add_costs=[] } = params;
+  const rr = r/100;
+  const capex0 = precio - incentivo;
+  const residual = precio * (residual_pct/100);
+
+  let npv = capex0;
+  for (let t=1;t<=H;t++){
+    const energia = (typeof energia_anual === "function") ? energia_anual() : energia_anual;
+    // add_costs son pares {year, amount} para costos únicos específicos
+    const extra = add_costs.filter(c=>c.year===t).reduce((acc,c)=>acc+c.amount,0);
+    const opex_t = energia + mant + seguro + patentes + otros + extra;
+    npv += opex_t / Math.pow(1+rr,t);
+  }
+  npv -= residual / Math.pow(1+rr,H);
+
+  const eac = npv * (rr / (1 - Math.pow(1+rr,-H)));
+  const lco = eac / km;
+  return { npv, eac, lco, capex0, residual };
+}
+
+function calcAndRender(){
+  const H = +get('H').value;
+  const r = +get('r').value;
+  const km = +get('km').value;
+
+  const res_ev = +get('res_ev').value, res_ice = +get('res_ice').value;
+  const kwh100 = +get('kwh100').value, p_kwh_home = +get('p_kwh_home').value, p_kwh_pub = +get('p_kwh_pub').value, mix_home = +get('mix_home').value;
+  const l100 = +get('l100').value, p_fuel = +get('p_fuel').value;
+  const mant_ev = +get('mant_ev').value, mant_ice = +get('mant_ice').value;
+
+  const precio_ev = +get('precio_ev').value, inc_ev = +get('inc_ev').value, precio_ice = +get('precio_ice').value;
+
+  // Riesgos
+  const chg_batt = get('chg_batt').checked;
+  const batt_kwh = +get('batt_kwh').value;
+  const batt_cost = +get('batt_cost').value;
+  const ice_bump = +get('ice_bump').value;
+
+  const energiaEV_fn = () => energiaEV(km,kwh100,p_kwh_home,p_kwh_pub,mix_home);
+  const energiaICE_fn = () => energiaICE(km,l100,p_fuel);
+
+  // Eventos
+  const add_ev = [];
+  if (chg_batt && H>=8) add_ev.push({year:8, amount: batt_kwh * batt_cost});
+  const add_ice = [];
+  if (H>=6 && ice_bump>0){
+    for (let y=6;y<=H;y++) add_ice.push({year:y, amount: ice_bump});
+  }
+
+  const ev = npvOption({
+    H, r, km, precio:precio_ev, incentivo:inc_ev, mant:mant_ev,
+    seguro: 600000, patentes: 250000, otros: 0, // puedes editar aquí si quieres parametrizar más
+    energia_anual: energiaEV_fn, residual_pct: res_ev, add_costs:add_ev
+  });
+
+  const ice = npvOption({
+    H, r, km, precio:precio_ice, incentivo:0, mant:mant_ice,
+    seguro: 500000, patentes: 300000, otros: 0,
+    energia_anual: energiaICE_fn, residual_pct: res_ice, add_costs:add_ice
+  });
+
+  const winner = ev.npv < ice.npv ? "EV" : "ICE";
+  const diff = Math.abs(ev.npv - ice.npv);
+  const lco_winner = ev.npv < ice.npv ? ev.lco : ice.lco;
+
+  get('win').textContent = winner;
+  get('diff').textContent = `CLP ${nfmt(diff)}`;
+  get('lco').textContent = `CLP ${nfmt2(lco_winner)} por km`;
+
+  const html = `
+    <p><span class="winner">Recomendación:</span> <b>${winner}</b> (menor NPV de costo total).</p>
+    <p class="muted">Diferencia de NPV: CLP ${nfmt(diff)} a favor de <b>${winner}</b>.</p>
+    <p class="mono">EV → NPV: CLP ${nfmt(ev.npv)} | EAC: CLP ${nfmt(ev.eac)}/año | Costo por km: CLP ${nfmt2(ev.lco)}</p>
+    <p class="mono">ICE → NPV: CLP ${nfmt(ice.npv)} | EAC: CLP ${nfmt(ice.eac)}/año | Costo por km: CLP ${nfmt2(ice.lco)}</p>
+    <hr>
+    <p class="muted">Energía anual estimada:</p>
+    <ul class="muted">
+      <li>EV: CLP ${nfmt(energiaEV_fn())}</li>
+      <li>ICE: CLP ${nfmt(energiaICE_fn())}</li>
+    </ul>
+    <p class="muted">Eventos considerados: ${chg_batt && H>=8 ? `Cambio de batería EV en año 8 por CLP ${nfmt(batt_kwh*batt_cost)}.` : '—'} ${H>=6 && ice_bump>0 ? `ICE con mantención +CLP ${nfmt(ice_bump)} desde año 6.` : ''}</p>
+  `;
+  get('out').innerHTML = html;
+
+  // Guarda últimos resultados para CSV
+  window.__lastResults = {
+    winner, diff, ev, ice, energiaEV: energiaEV_fn(), energiaICE: energiaICE_fn(),
+    inputs: {H,r,km,res_ev,res_ice,kwh100,p_kwh_home,p_kwh_pub,mix_home,l100,p_fuel,mant_ev,mant_ice,precio_ev,inc_ev,precio_ice, chg_batt,batt_kwh,batt_cost,ice_bump}
+  };
+}
+
+get('calc').addEventListener('click', calcAndRender);
+get('reset').addEventListener('click', ()=>{
+  Object.entries(defaults).forEach(([k,v])=>{
+    if (typeof v === 'boolean') get(k).checked = v;
+    else get(k).value = v;
+  });
+  get('escenario').value = 'H8r12';
+  syncLabels();
+  get('out').innerHTML = `<p class="muted">Reseteado. Ajusta y presiona <b>Calcular</b>.</p>`;
+  get('win').textContent = '—';
+  get('diff').textContent = '—';
+  get('lco').textContent = '—';
+  window.__lastResults = null;
+});
+
+// Exportar PDF (abre diálogo del navegador)
+get('exportPdf').addEventListener('click', ()=> window.print());
+
+// Exportar CSV (Excel)
+get('exportCsv').addEventListener('click', ()=>{
+  const r = window.__lastResults;
+  if(!r){ alert('Primero calcula resultados.'); return; }
+  const {winner,diff,ev,ice,energiaEV,energiaICE,inputs} = r;
+  const rows = [
+    ['Campo','Valor'],
+    ['Ganador', winner],
+    ['Diferencia NPV (CLP)', diff],
+    ['EV NPV (CLP)', ev.npv],
+    ['EV EAC (CLP/año)', ev.eac],
+    ['EV Costo/km (CLP)', ev.lco],
+    ['ICE NPV (CLP)', ice.npv],
+    ['ICE EAC (CLP/año)', ice.eac],
+    ['ICE Costo/km (CLP)', ice.lco],
+    ['EV Energía anual (CLP)', energiaEV],
+    ['ICE Energía anual (CLP)', energiaICE],
+    ['—','—'],
+    ['Supuestos',''],
+    ...Object.entries(inputs).map(([k,v])=>[k,v])
+  ];
+  const csv = rows.map(r=>r.map(x=>`"${String(x).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'ev_vs_ice_tco.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
+
+(function init(){
+  syncLabels();
+})();
+</script>
+</body>
+</html>
