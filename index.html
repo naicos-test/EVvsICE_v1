@@ -37,13 +37,73 @@ input,select{width:100%;padding:8px 10px;border-radius:10px;border:1px solid #27
 .link{color:#8ec6ff;text-decoration:none}
 @media(max-width:1100px){.grid{grid-template-columns:1fr}.kpi{grid-template-columns:1fr}}
 canvas{background:#0d1422;border:1px solid #27324a;border-radius:12px;padding:8px}
+
+  /* ─── Sliders compactos (≈ mitad de alto) ────────────────────────────── */
+:root{
+  --range-track-h: 4px;   /* alto de la pista */
+  --range-thumb:   12px;  /* diámetro del “thumb” (el botón) */
+}
+
+/* base */
+input[type="range"]{
+  -webkit-appearance: none;
+  appearance: none;
+  height: var(--range-thumb);
+  padding: 0;                 /* quita relleno vertical */
+  background: transparent;    /* usamos solo la pista y el thumb */
+}
+
+/* WebKit / Blink (Chrome, Edge, Safari) */
+input[type="range"]::-webkit-slider-runnable-track{
+  height: var(--range-track-h);
+  background: #27324a;
+  border-radius: 999px;
+}
+input[type="range"]::-webkit-slider-thumb{
+  -webkit-appearance: none;
+  appearance: none;
+  width: var(--range-thumb);
+  height: var(--range-thumb);
+  border-radius: 50%;
+  background: #5dd0a6;
+  border: 2px solid #0d1422;
+  margin-top: calc((var(--range-track-h) - var(--range-thumb)) / 2); /* centra el thumb */
+  cursor: pointer;
+}
+
+/* Firefox */
+input[type="range"]::-moz-range-track{
+  height: var(--range-track-h);
+  background: #27324a;
+  border-radius: 999px;
+}
+input[type="range"]::-moz-range-thumb{
+  width: var(--range-thumb);
+  height: var(--range-thumb);
+  border-radius: 50%;
+  background: #5dd0a6;
+  border: 2px solid #0d1422;
+  cursor: pointer;
+}
+
+/* (Opcional) estados de foco/hover */
+input[type="range"]:hover::-webkit-slider-runnable-track{ background:#2e3a57; }
+input[type="range"]:hover::-moz-range-track{ background:#2e3a57; }
+input[type="range"]:focus{ outline: none; }
+
+/* (Opcional) ajusta un poco el padding de los contenedores para ganar vertical */
+.pill{ padding: 6px 8px; }         /* antes: 8px 10px */
+.small{ font-size: 11.5px; }       /* sutilmente más compacto */
+
+
+  
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="hdr">
     <div>
-      <h1><img src="logo.svg" alt="logo" style="width:26px;vertical-align:middle;margin-right:6px"/> EV vs ICE — Comparador económico_v1</h1>
+      <h1><img src="Logo_1.svg" alt="logo" style="width:26px;vertical-align:middle;margin-right:6px"/> EV vs ICE — Comparador económico_v1</h1>
       <p class="subtitle">TCO/NPV con tarifas planas o TOU, sensibilidades y gráficos. <a class="link" href="ayuda.html">Ayuda</a></p>
     </div>
     <div class="actions">
@@ -587,6 +647,8 @@ get('reset').addEventListener('click', ()=>{
 // 🔧 Engancha el botón Calcular (fix principal)
 get('calc').addEventListener('click', calcAndRender);
 
+
+  
 // Carga inicial: desde URL o defaults
 (function init(){
   // defaults primero
