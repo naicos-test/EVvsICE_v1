@@ -3,9 +3,8 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net/npm/chart.js@4.4.1/; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self';">
 <title>EV vs ICE — Comparador TCO/NPV</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236c7ae0'><path d='M12 2L2 7v10c0 5.55 3.84 9.74 9 11 5.16-1.26 9-5.45 9-11V7l-10-5z'/></svg>"/>
+<link rel="icon" href="logo.svg"/>
 <style>
 /* ───────────────── THEME (claro, minimal, acento índigo) ───────────────── */
 :root{
@@ -107,10 +106,6 @@ input[type="range"]::-moz-range-thumb{width:var(--range-thumb); height:var(--ran
 .table th:first-child,.table td:first-child{text-align:left}
 .table tfoot td{font-weight:700}
 
-/* Error styling */
-.error{background:#fef2f2; border-color:#fecaca; color:#dc2626}
-.success{background:#f0fdf4; border-color:#bbf7d0; color:#16a34a}
-
 /* ───────────────── Responsive ───────────────── */
 @media (max-width:1100px){
   .grid{grid-template-columns:1fr}
@@ -129,7 +124,7 @@ input[type="range"]::-moz-range-thumb{width:var(--range-thumb); height:var(--ran
 <div class="header">
   <div class="header-inner">
     <div class="brand">
-      <div style="width:26px;height:26px;background:var(--accent);border-radius:50%"></div>
+      <img src="logo.svg" alt="logo" style="width:26px;height:26px">
       <h1>EV vs ICE — Comparador TCO/NPV</h1>
     </div>
     <div class="kpis">
@@ -141,7 +136,6 @@ input[type="range"]::-moz-range-thumb{width:var(--range-thumb); height:var(--ran
     <div class="actions">
       <button class="btn ghost" id="help">Ayuda</button>
       <button class="btn ghost" id="shareUrl">Compartir escenario</button>
-      <!-- Botón Calcular movido al header -->
       <button class="btn" id="calcHeader">Calcular</button>
     </div>
   </div>
@@ -196,7 +190,7 @@ input[type="range"]::-moz-range-thumb{width:var(--range-thumb); height:var(--ran
           <div class="pill">
             <label>Consumo EV (kWh/100 km)</label>
             <input id="kwh100" type="range" min="11" max="20" step="0.5" value="15"/>
-            <div class="small"><span id="kwh100_v">15.0</span> kWh/100 km (para "Personalizado")</div>
+            <div class="small"><span id="kwh100_v">15.0</span> kWh/100 km (para “Personalizado”)</div>
           </div>
 
           <div class="pill">
@@ -233,7 +227,7 @@ input[type="range"]::-moz-range-thumb{width:var(--range-thumb); height:var(--ran
           <div class="pill">
             <label>Consumo ICE (L/100 km)</label>
             <input id="l100" type="range" min="5" max="10" step="0.1" value="7"/>
-            <div class="small"><span id="l100_v">7.0</span> L/100 km (para "Personalizado")</div>
+            <div class="small"><span id="l100_v">7.0</span> L/100 km (para “Personalizado”)</div>
           </div>
           <div class="pill">
             <label>Precio combustible (CLP/L)</label>
@@ -318,7 +312,7 @@ input[type="range"]::-moz-range-thumb{width:var(--range-thumb); height:var(--ran
             <input id="batt_cost" type="range" min="60000" max="200000" step="5000" value="100000"/>
           </div>
           <div class="pill">
-            <label>ICE: mantención "alta" desde año 6</label>
+            <label>ICE: mantención “alta” desde año 6</label>
             <input id="ice_bump" type="range" min="0" max="300000" step="10000" value="150000"/>
             <div class="small">+CLP <span id="ice_bump_v">150.000</span>/año (año ≥ 6)</div>
           </div>
@@ -332,7 +326,7 @@ input[type="range"]::-moz-range-thumb{width:var(--range-thumb); height:var(--ran
           <button class="btn" id="addEV">+ Añadir EV</button>
           <button class="btn alt" id="addICE">+ Añadir ICE</button>
         </div>
-        <p class="small">Los modelos <b>Personalizado</b> usan tus controles globales (precio/consumo). Los demás cargan parámetros recomendados y siempre puedes ajustar tarifas, mantenciones y riesgos globales.</p>
+        <p class="small">Los modelos <b>Personalizado</b> usan tus controles globales. Los demás cargan parámetros sugeridos; puedes ajustar tarifas, mantenciones y riesgos globales.</p>
       </div>
     </div>
 
@@ -343,17 +337,14 @@ input[type="range"]::-moz-range-thumb{width:var(--range-thumb); height:var(--ran
         <small><a href="#" id="openHow">¿Cómo calculamos?</a></small>
       </div>
 
-      <!-- Costo normalizado por vehículo -->
       <div id="normCosts" class="section"></div>
 
-      <!-- Gráfico líneas acumuladas VP -->
       <div class="section">
         <h2>Costos acumulados (valor presente)</h2>
         <canvas id="lines" height="320"></canvas>
         <p class="small" id="crossnote">Intersección: —</p>
       </div>
 
-      <!-- Categorías con sparklines -->
       <div class="section">
         <div class="tabs" id="vehTabs"></div>
         <div class="catgrid">
@@ -364,7 +355,6 @@ input[type="range"]::-moz-range-thumb{width:var(--range-thumb); height:var(--ran
         </div>
       </div>
 
-      <!-- Tornado -->
       <div class="section">
         <h2>Tornado (sensibilidades sobre ΔNPV)</h2>
         <canvas id="tornado" height="320"></canvas>
@@ -372,7 +362,6 @@ input[type="range"]::-moz-range-thumb{width:var(--range-thumb); height:var(--ran
     </div>
   </div>
 
-  <!-- ───────────────── Tablas por año ───────────────── -->
   <div class="card section">
     <div style="display:flex;justify-content:space-between;align-items:center">
       <h2>Detalle por año</h2>
@@ -387,11 +376,11 @@ input[type="range"]::-moz-range-thumb{width:var(--range-thumb); height:var(--ran
   <div class="panel">
     <span class="closex" data-x="modalHow">✕</span>
     <h3>¿Cómo calculamos?</h3>
-    <p>Usamos NPV del costo total en un horizonte <b>H</b> con tasa de descuento <b>r</b>. OPEX del año <i>t</i> (energía + mantención + seguros + permisos + eventos) se descuenta a valor presente con <i>(1+r)<sup>t</sup></i>. El NPV resta el valor presente del residual al final del horizonte.</p>
+    <p>Usamos NPV del costo total en un horizonte <b>H</b> con tasa de descuento <b>r</b>. OPEX del año <i>t</i> (energía + mantención + seguros + permisos + eventos) se descuenta con <i>(1+r)<sup>t</sup></i>. El NPV resta el VP del residual al final del horizonte.</p>
     <ul class="small">
-      <li><b>Energía EV:</b> consumo (kWh/100 km) × km/año × mezcla hogar–pública. Hogar puede ser tarifa <i>plana</i> o <i>TOU</i> (valle/punta).</li>
+      <li><b>Energía EV:</b> consumo (kWh/100 km) × km/año × mezcla hogar–pública. Hogar: plana o TOU (valle/punta).</li>
       <li><b>Energía ICE:</b> consumo (L/100 km) × km/año × precio de combustible.</li>
-      <li><b>Eventos:</b> provisión de batería EV en año 8 si está activado; "bump" de mantención ICE desde año 6.</li>
+      <li><b>Eventos:</b> provisión de batería EV en año 8 si activa; “bump” ICE desde año 6.</li>
       <li><b>Indicadores:</b> EAC (costo anual equivalente), CLP/km = EAC / km.</li>
     </ul>
   </div>
@@ -403,1266 +392,506 @@ input[type="range"]::-moz-range-thumb{width:var(--range-thumb); height:var(--ran
     <h3>Ayuda (contexto Chile)</h3>
     <ul class="small">
       <li><b>Tarifa hogar (plana):</b> ~CLP 110–220/kWh (según plan y comuna).</li>
-      <li><b>Hogar TOU:</b> valle puede ser ~CLP 90–160/kWh y punta ~CLP 220–380/kWh. Programar carga nocturna reduce costo promedio.</li>
+      <li><b>Hogar TOU:</b> valle ~CLP 90–160/kWh; punta ~CLP 220–380/kWh.</li>
       <li><b>Pública:</b> rápida ~CLP 300–500/kWh; normal ~CLP 200–350/kWh.</li>
-      <li><b>Instalación domiciliaria:</b> desde CLP 300.000–1.000.000 (wallbox + mano de obra; varía por empalme y distancia).</li>
-      <li>Estos rangos son referenciales; verifica con tu distribuidora/red local.</li>
+      <li><b>Instalación domiciliaria:</b> aprox. CLP 300.000–1.000.000 (wallbox + instalación; varía por empalme y distancia).</li>
     </ul>
   </div>
 </div>
 
+<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
-(function() {
-  'use strict';
-  
-  /* ───────────── Utilidades ───────────── */
-  const fmtN = (n,d=0)=> {
-    if (typeof n !== 'number' || !isFinite(n)) return '0';
-    return n.toLocaleString('es-CL',{maximumFractionDigits:d});
+/* ───────────── Utilidades ───────────── */
+const fmtN = (n,d=0)=> n.toLocaleString('es-CL',{maximumFractionDigits:d});
+const fmt2 = (n)=> n.toLocaleString('es-CL',{maximumFractionDigits:2});
+const $ = (id)=> document.getElementById(id);
+const qs = new URLSearchParams(location.search);
+function getCSS(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+
+/* Estado global (¡sin redeclaraciones!) */
+const defaults = {
+  km:15000, r:12, H:8, mix_home:70,
+  kwh100:15, tarifa_mode:'flat', p_kwh_home:200, p_kwh_valle:140, p_kwh_punta:280, share_valle:70,
+  p_kwh_pub:380, l100:7, p_fuel:1200,
+  mant_ev:200000, mant_ice:380000, seg_ev:600000, seg_ice:500000, pat_ev:250000, pat_ice:300000,
+  precio_ev:19000000, inc_ev:0, precio_ice:13000000, res_ev:40, res_ice:35,
+  chg_batt:true, batt_kwh:38, batt_cost:100000, ice_bump:150000
+};
+const state = { vehicles: [] };     // {id,type:'EV'|'ICE', modelKey}
+let tornadoChart=null, linesChart=null, catCharts={}, tabsActive=null;
+let lastResults=[];
+
+/* Modelos */
+const evModels = [
+  {key:'custom', name:'Personalizado', custom:true},
+  {key:'byd_dolphin_mini', name:'BYD Dolphin Mini', price:19000000, kwh100:15, batt_kwh:38, residual:40},
+  {key:'mg4_std', name:'MG4 Standard', price:23990000, kwh100:16, batt_kwh:51, residual:42},
+  {key:'nissan_leaf40', name:'Nissan Leaf 40kWh', price:32000000, kwh100:18, batt_kwh:40, residual:38},
+  {key:'tesla_m3_rwd', name:'Tesla Model 3 RWD', price:36900000, kwh100:14, batt_kwh:57, residual:50},
+  {key:'byd_yuan_plus', name:'BYD Yuan Plus (Atto 3)', price:28990000, kwh100:16, batt_kwh:60, residual:45},
+  {key:'mg_zs_ev', name:'MG ZS EV', price:27990000, kwh100:18, batt_kwh:51, residual:40},
+  {key:'jac_e10x', name:'JAC E10X', price:15000000, kwh100:13, batt_kwh:31, residual:35}
+];
+const iceModels = [
+  {key:'custom', name:'Personalizado', custom:true},
+  {key:'suzuki_swift', name:'Suzuki Swift 1.2', price:13000000, l100:7.0, residual:35},
+  {key:'toyota_yaris', name:'Toyota Yaris 1.5', price:15000000, l100:6.5, residual:40},
+  {key:'chevy_onix', name:'Chevrolet Onix 1.0T', price:14500000, l100:6.7, residual:38},
+  {key:'kia_rio', name:'Kia Rio 1.4', price:14000000, l100:7.2, residual:36},
+  {key:'hyundai_accent', name:'Hyundai Accent 1.4', price:13800000, l100:7.0, residual:36},
+  {key:'peugeot_208', name:'Peugeot 208 1.6', price:15500000, l100:7.5, residual:37}
+];
+function modelList(type){return type==='EV'?evModels:iceModels;}
+function findModel(type,key){return modelList(type).find(m=>m.key===key)||modelList(type)[0];}
+
+/* Sync labels */
+['km','r','H','mix_home','kwh100','p_kwh_home','p_kwh_valle','p_kwh_punta','share_valle','p_kwh_pub','l100','p_fuel',
+ 'mant_ev','mant_ice','seg_ev','seg_ice','pat_ev','pat_ice',
+ 'precio_ev','inc_ev','precio_ice','res_ev','res_ice','batt_kwh','batt_cost','ice_bump','tarifa_mode'
+].forEach(id=>{ const el=$(id); if(el){ el.addEventListener('input', syncLabels); }});
+$('escenario').addEventListener('change', ()=>{
+  const v=$('escenario').value, map={H3r8:{H:3,r:8},H5r8:{H:5,r:8},H8r8:{H:8,r:8},H3r12:{H:3,r:12},H5r12:{H:5,r:12},H8r12:{H:8,r:12}};
+  if(v!=='custom'){ $('H').value=map[v].H; $('r').value=map[v].r; syncLabels(); }
+});
+function syncLabels(){
+  if($('km_v')) $('km_v').textContent=fmtN(+$('km').value);
+  if($('r_v')) $('r_v').textContent=+$('r').value;
+  if($('H_v')) $('H_v').textContent=+$('H').value;
+  if($('mix_home_v')) $('mix_home_v').textContent=+$('mix_home').value;
+
+  if($('kwh100_v')) $('kwh100_v').textContent=(+$('kwh100').value).toFixed(1);
+  if($('p_kwh_home_v')) $('p_kwh_home_v').textContent=fmtN(+$('p_kwh_home').value);
+  if($('p_kwh_valle_v')) $('p_kwh_valle_v').textContent=fmtN(+$('p_kwh_valle').value);
+  if($('p_kwh_punta_v')) $('p_kwh_punta_v').textContent=fmtN(+$('p_kwh_punta').value);
+  if($('share_valle_v')) $('share_valle_v').textContent=fmtN(+$('share_valle').value);
+  if($('p_kwh_pub_v')) $('p_kwh_pub_v').textContent=fmtN(+$('p_kwh_pub').value);
+
+  if($('l100_v')) $('l100_v').textContent=(+$('l100').value).toFixed(1);
+  if($('p_fuel_v')) $('p_fuel_v').textContent=fmtN(+$('p_fuel').value);
+
+  if($('mant_ev_v')) $('mant_ev_v').textContent=fmtN(+$('mant_ev').value);
+  if($('mant_ice_v')) $('mant_ice_v').textContent=fmtN(+$('mant_ice').value);
+  if($('seg_ev_v')) $('seg_ev_v').textContent=fmtN(+$('seg_ev').value);
+  if($('seg_ice_v')) $('seg_ice_v').textContent=fmtN(+$('seg_ice').value);
+  if($('pat_ev_v')) $('pat_ev_v').textContent=fmtN(+$('pat_ev').value);
+  if($('pat_ice_v')) $('pat_ice_v').textContent=fmtN(+$('pat_ice').value);
+
+  if($('precio_ev_v')) $('precio_ev_v').textContent=fmtN(+$('precio_ev').value);
+  if($('inc_ev_v')) $('inc_ev_v').textContent=fmtN(+$('inc_ev').value);
+  if($('precio_ice_v')) $('precio_ice_v').textContent=fmtN(+$('precio_ice').value);
+  if($('res_ev_v')) $('res_ev_v').textContent=fmtN(+$('res_ev').value);
+  if($('res_ice_v')) $('res_ice_v').textContent=fmtN(+$('res_ice').value);
+
+  if($('batt_kwh_v')) $('batt_kwh_v').textContent=(+$('batt_kwh').value).toFixed(1);
+  if($('batt_cost_v')) $('batt_cost_v').textContent=fmtN(+$('batt_cost').value);
+  if($('ice_bump_v')) $('ice_bump_v').textContent=fmtN(+$('ice_bump').value);
+
+  const mode=$('tarifa_mode').value;
+  $('p_home_flat_wrap').style.display=(mode==='flat')?'block':'none';
+  $('p_home_tou_wrap').style.display=(mode==='tou')?'block':'none';
+}
+
+/* Energía anual */
+function energiaEV(km,kwh100,mode,p_flat,p_valle,p_punta,share_valle,p_pub,mix_home){
+  const kwh_year=(km/100)*kwh100;
+  const m=Math.min(Math.max(mix_home/100,0),1);
+  let p_home=p_flat;
+  if(mode==='tou'){ const sv=Math.min(Math.max(share_valle/100,0),1); p_home=sv*p_valle+(1-sv)*p_punta; }
+  const p_mix = m*p_home + (1-m)*p_pub;
+  return kwh_year * p_mix;
+}
+function energiaICE(km,l100,p_fuel){ return (km/100)*l100*p_fuel; }
+
+/* Inputs */
+function makeInputs(){
+  return {
+    H:+$('H').value, r:+$('r').value, km:+$('km').value, mix_home:+$('mix_home').value,
+    kwh100:+$('kwh100').value, tarifa_mode:$('tarifa_mode').value,
+    p_kwh_home:+$('p_kwh_home').value, p_kwh_valle:+$('p_kwh_valle').value, p_kwh_punta:+$('p_kwh_punta').value, share_valle:+$('share_valle').value,
+    p_kwh_pub:+$('p_kwh_pub').value, l100:+$('l100').value, p_fuel:+$('p_fuel').value,
+    mant_ev:+$('mant_ev').value, mant_ice:+$('mant_ice').value, seg_ev:+$('seg_ev').value, seg_ice:+$('seg_ice').value, pat_ev:+$('pat_ev').value, pat_ice:+$('pat_ice').value,
+    precio_ev:+$('precio_ev').value, inc_ev:+$('inc_ev').value, precio_ice:+$('precio_ice').value, res_ev:+$('res_ev').value, res_ice:+$('res_ice').value,
+    chg_batt:$('chg_batt').checked, batt_kwh:+$('batt_kwh').value, batt_cost:+$('batt_cost').value, ice_bump:+$('ice_bump').value
   };
-  const fmt2 = (n)=> {
-    if (typeof n !== 'number' || !isFinite(n)) return '0.00';
-    return n.toLocaleString('es-CL',{maximumFractionDigits:2});
-  };
-  
-  const $ = (id) => {
-    const el = document.getElementById(id);
-    if (!el) {
-      console.warn(`Element with id "${id}" not found`);
-      return null;
-    }
-    return el;
-  };
+}
 
-  /* Validación de entrada */
-  function validateInput(value, min, max, defaultValue) {
-    const num = parseFloat(value);
-    if (isNaN(num) || num < min || num > max) {
-      return defaultValue;
-    }
-    return num;
+/* NPV por opción con VP y Nominal */
+function npvOption({H,r,km,precio,incentivo,mant,seguro,patentes,energia_fn,residual_pct,add_costs=[], type}){
+  const rr=r/100; const capex0=precio-incentivo; const residual=precio*(residual_pct/100);
+  let npv=capex0; let cumVP=[], acc=capex0;
+  let byCatVP = {energy:[], mant:[], segs:[], depr:[], events:[]};
+  let byCatNom= {energy:[], mant:[], segs:[], depr:[], events:[]};
+
+  for(let t=1;t<=H;t++){
+    const energy_nom = energia_fn();
+    const event_nom  = add_costs.filter(c=>c.year===t).reduce((a,c)=>a+c.amount,0);
+    const opex_nom = energy_nom + mant + seguro + patentes + event_nom;
+    const disc = Math.pow(1+rr,t);
+    const vp = opex_nom / disc;
+
+    npv+=vp; acc+=vp; cumVP.push(acc);
+
+    byCatNom.energy.push(energy_nom);
+    byCatNom.mant.push(mant);
+    byCatNom.segs.push(seguro+patentes);
+    byCatNom.events.push(event_nom);
+    byCatNom.depr.push(0);
+
+    byCatVP.energy.push(energy_nom/disc);
+    byCatVP.mant.push(mant/disc);
+    byCatVP.segs.push((seguro+patentes)/disc);
+    byCatVP.events.push(event_nom/disc);
+    byCatVP.depr.push(0);
   }
+  const vpResidual = residual/Math.pow(1+rr,H);
+  npv -= vpResidual;
+  cumVP[cumVP.length-1] -= vpResidual;
 
-  function sanitizeInput(str) {
-    return String(str).replace(/[<>'"&]/g, '');
-  }
+  byCatVP.depr[H-1] = -vpResidual;
+  byCatNom.depr[H-1] = -residual;
 
-  /* Estado global seguro */
-  const state = {
-    vehicles: [],
-    lastResults: null,
-    isCalculating: false
-  };
+  const eac = npv * (rr/(1-Math.pow(1+rr,-H)));
+  const lco = eac / km;
+  return {npv,eac,lco,capex0,residual,cumVP,byCatVP,byCatNom};
+}
 
-  /* Defaults + estado */
-  const defaults = {
-    km:15000, r:12, H:8, mix_home:70,
-    kwh100:15, tarifa_mode:'flat', p_kwh_home:200, p_kwh_valle:140, p_kwh_punta:280, share_valle:70,
-    p_kwh_pub:380, l100:7, p_fuel:1200,
-    mant_ev:200000, mant_ice:380000, seg_ev:600000, seg_ice:500000, pat_ev:250000, pat_ice:300000,
-    precio_ev:19000000, inc_ev:0, precio_ice:13000000, res_ev:40, res_ice:35,
-    chg_batt:true, batt_kwh:38, batt_cost:100000, ice_bump:150000
-  };
+/* Eventos por tipo */
+function buildAddCosts(inp,type){
+  const arr=[];
+  if(type==='EV' && inp.chg_batt && inp.H>=8) arr.push({year:8,amount: inp.batt_kwh*inp.batt_cost});
+  if(type==='ICE' && inp.H>=6 && inp.ice_bump>0) for(let y=6;y<=inp.H;y++) arr.push({year:y,amount: inp.ice_bump});
+  return arr;
+}
 
-  /* Modelos de vehículos */
-  const evModels = [
-    {key:'custom', name:'Personalizado', custom:true},
-    {key:'byd_dolphin_mini', name:'BYD Dolphin Mini', price:19000000, kwh100:15, batt_kwh:38, residual:40},
-    {key:'mg4_std', name:'MG4 Standard', price:23990000, kwh100:16, batt_kwh:51, residual:42},
-    {key:'nissan_leaf40', name:'Nissan Leaf 40kWh', price:32000000, kwh100:18, batt_kwh:40, residual:38},
-    {key:'tesla_m3_rwd', name:'Tesla Model 3 RWD', price:36900000, kwh100:14, batt_kwh:57, residual:50},
-    {key:'byd_yuan_plus', name:'BYD Yuan Plus (Atto 3)', price:28990000, kwh100:16, batt_kwh:60, residual:45},
-    {key:'mg_zs_ev', name:'MG ZS EV', price:27990000, kwh100:18, batt_kwh:51, residual:40},
-    {key:'jac_e10x', name:'JAC E10X', price:15000000, kwh100:13, batt_kwh:31, residual:35}
-  ];
-  
-  const iceModels = [
-    {key:'custom', name:'Personalizado', custom:true},
-    {key:'suzuki_swift', name:'Suzuki Swift 1.2', price:13000000, l100:7.0, residual:35},
-    {key:'toyota_yaris', name:'Toyota Yaris 1.5', price:15000000, l100:6.5, residual:40},
-    {key:'chevy_onix', name:'Chevrolet Onix 1.0T', price:14500000, l100:6.7, residual:38},
-    {key:'kia_rio', name:'Kia Rio 1.4', price:14000000, l100:7.2, residual:36},
-    {key:'hyundai_accent', name:'Hyundai Accent 1.4', price:13800000, l100:7.0, residual:36},
-    {key:'peugeot_208', name:'Peugeot 208 1.6', price:15500000, l100:7.5, residual:37}
-  ];
-
-  function modelList(type) {
-    return type === 'EV' ? evModels : iceModels;
-  }
-  
-  function findModel(type, key) {
-    return modelList(type).find(m => m.key === key) || modelList(type)[0];
-  }
-
-  /* Manejo seguro de parámetros URL */
-  function getUrlParams() {
-    try {
-      return new URLSearchParams(window.location.search);
-    } catch (e) {
-      console.warn('Error parsing URL parameters:', e);
-      return new URLSearchParams();
-    }
-  }
-
-  const qs = getUrlParams();
-
-  /* Sincronización de labels con validación */
-  const syncFunctions = {
-    km: (val) => fmtN(validateInput(val, 8000, 30000, 15000)),
-    r: (val) => validateInput(val, 6, 16, 12),
-    H: (val) => validateInput(val, 3, 10, 8),
-    mix_home: (val) => validateInput(val, 0, 100, 70),
-    kwh100: (val) => validateInput(val, 11, 20, 15).toFixed(1),
-    p_kwh_home: (val) => fmtN(validateInput(val, 100, 300, 200)),
-    p_kwh_valle: (val) => fmtN(validateInput(val, 80, 250, 140)),
-    p_kwh_punta: (val) => fmtN(validateInput(val, 180, 500, 280)),
-    share_valle: (val) => validateInput(val, 0, 100, 70),
-    p_kwh_pub: (val) => fmtN(validateInput(val, 200, 500, 380)),
-    l100: (val) => validateInput(val, 5, 10, 7).toFixed(1),
-    p_fuel: (val) => fmtN(validateInput(val, 900, 1600, 1200)),
-    mant_ev: (val) => fmtN(validateInput(val, 100000, 350000, 200000)),
-    mant_ice: (val) => fmtN(validateInput(val, 250000, 600000, 380000)),
-    seg_ev: (val) => fmtN(validateInput(val, 300000, 900000, 600000)),
-    seg_ice: (val) => fmtN(validateInput(val, 300000, 900000, 500000)),
-    pat_ev: (val) => fmtN(validateInput(val, 100000, 500000, 250000)),
-    pat_ice: (val) => fmtN(validateInput(val, 100000, 500000, 300000)),
-    precio_ev: (val) => fmtN(validateInput(val, 12000000, 40000000, 19000000)),
-    inc_ev: (val) => fmtN(validateInput(val, 0, 5000000, 0)),
-    precio_ice: (val) => fmtN(validateInput(val, 9000000, 30000000, 13000000)),
-    res_ev: (val) => validateInput(val, 20, 60, 40),
-    res_ice: (val) => validateInput(val, 25, 60, 35),
-    batt_kwh: (val) => validateInput(val, 28, 70, 38).toFixed(1),
-    batt_cost: (val) => fmtN(validateInput(val, 60000, 200000, 100000)),
-    ice_bump: (val) => fmtN(validateInput(val, 0, 300000, 150000))
-  };
-
-  function syncLabels() {
-    try {
-      Object.entries(syncFunctions).forEach(([key, formatter]) => {
-        const input = $(key);
-        const display = $(`${key}_v`);
-        if (input && display) {
-          display.textContent = formatter(input.value);
-        }
-      });
-
-      // Manejo especial para modo tarifa
-      const mode = $('tarifa_mode')?.value || 'flat';
-      const flatWrap = $('p_home_flat_wrap');
-      const touWrap = $('p_home_tou_wrap');
-      
-      if (flatWrap) flatWrap.style.display = (mode === 'flat') ? 'block' : 'none';
-      if (touWrap) touWrap.style.display = (mode === 'tou') ? 'block' : 'none';
-    } catch (e) {
-      console.error('Error syncing labels:', e);
-    }
-  }
-
-  /* Event listeners seguros */
-  function addEventListeners() {
-    // Sync labels en inputs
-    Object.keys(syncFunctions).forEach(id => {
-      const el = $(id);
-      if (el) {
-        el.addEventListener('input', syncLabels);
-      }
-    });
-
-    // Escenario rápido
-    const escenario = $('escenario');
-    if (escenario) {
-      escenario.addEventListener('change', () => {
-        const v = escenario.value;
-        const map = {
-          H3r8: {H: 3, r: 8}, H5r8: {H: 5, r: 8}, H8r8: {H: 8, r: 8},
-          H3r12: {H: 3, r: 12}, H5r12: {H: 5, r: 12}, H8r12: {H: 8, r: 12}
-        };
-        
-        if (v !== 'custom' && map[v]) {
-          const hEl = $('H');
-          const rEl = $('r');
-          if (hEl) hEl.value = map[v].H;
-          if (rEl) rEl.value = map[v].r;
-          syncLabels();
-        }
-      });
-    }
-
-    // Modo tarifa
-    const tarifaMode = $('tarifa_mode');
-    if (tarifaMode) {
-      tarifaMode.addEventListener('change', syncLabels);
-    }
-  }
-
-  /* Cálculo de energía */
-  function energiaEV(km, kwh100, mode, p_flat, p_valle, p_punta, share_valle, p_pub, mix_home) {
-    const kwh_year = (km / 100) * kwh100;
-    const m = Math.min(Math.max(mix_home / 100, 0), 1);
-    
-    let p_home = p_flat;
-    if (mode === 'tou') {
-      const sv = Math.min(Math.max(share_valle / 100, 0), 1);
-      p_home = sv * p_valle + (1 - sv) * p_punta;
-    }
-    
-    const p_mix = m * p_home + (1 - m) * p_pub;
-    return kwh_year * p_mix;
-  }
-
-  function energiaICE(km, l100, p_fuel) {
-    return (km / 100) * l100 * p_fuel;
-  }
-
-  /* Recolectar inputs con validación */
-  function makeInputs() {
-    try {
-      const getValue = (id, defaultVal, validator) => {
-        const el = $(id);
-        if (!el) return defaultVal;
-        
-        if (el.type === 'checkbox') {
-          return el.checked;
-        }
-        
-        const val = validator ? validator(el.value) : parseFloat(el.value);
-        return isNaN(val) ? defaultVal : val;
-      };
-
-      return {
-        H: getValue('H', 8, (v) => validateInput(v, 3, 10, 8)),
-        r: getValue('r', 12, (v) => validateInput(v, 6, 16, 12)),
-        km: getValue('km', 15000, (v) => validateInput(v, 8000, 30000, 15000)),
-        mix_home: getValue('mix_home', 70, (v) => validateInput(v, 0, 100, 70)),
-        kwh100: getValue('kwh100', 15, (v) => validateInput(v, 11, 20, 15)),
-        tarifa_mode: $('tarifa_mode')?.value || 'flat',
-        p_kwh_home: getValue('p_kwh_home', 200, (v) => validateInput(v, 100, 300, 200)),
-        p_kwh_valle: getValue('p_kwh_valle', 140, (v) => validateInput(v, 80, 250, 140)),
-        p_kwh_punta: getValue('p_kwh_punta', 280, (v) => validateInput(v, 180, 500, 280)),
-        share_valle: getValue('share_valle', 70, (v) => validateInput(v, 0, 100, 70)),
-        p_kwh_pub: getValue('p_kwh_pub', 380, (v) => validateInput(v, 200, 500, 380)),
-        l100: getValue('l100', 7, (v) => validateInput(v, 5, 10, 7)),
-        p_fuel: getValue('p_fuel', 1200, (v) => validateInput(v, 900, 1600, 1200)),
-        mant_ev: getValue('mant_ev', 200000, (v) => validateInput(v, 100000, 350000, 200000)),
-        mant_ice: getValue('mant_ice', 380000, (v) => validateInput(v, 250000, 600000, 380000)),
-        seg_ev: getValue('seg_ev', 600000, (v) => validateInput(v, 300000, 900000, 600000)),
-        seg_ice: getValue('seg_ice', 500000, (v) => validateInput(v, 300000, 900000, 500000)),
-        pat_ev: getValue('pat_ev', 250000, (v) => validateInput(v, 100000, 500000, 250000)),
-        pat_ice: getValue('pat_ice', 300000, (v) => validateInput(v, 100000, 500000, 300000)),
-        precio_ev: getValue('precio_ev', 19000000, (v) => validateInput(v, 12000000, 40000000, 19000000)),
-        inc_ev: getValue('inc_ev', 0, (v) => validateInput(v, 0, 5000000, 0)),
-        precio_ice: getValue('precio_ice', 13000000, (v) => validateInput(v, 9000000, 30000000, 13000000)),
-        res_ev: getValue('res_ev', 40, (v) => validateInput(v, 20, 60, 40)),
-        res_ice: getValue('res_ice', 35, (v) => validateInput(v, 25, 60, 35)),
-        chg_batt: getValue('chg_batt', true),
-        batt_kwh: getValue('batt_kwh', 38, (v) => validateInput(v, 28, 70, 38)),
-        batt_cost: getValue('batt_cost', 100000, (v) => validateInput(v, 60000, 200000, 100000)),
-        ice_bump: getValue('ice_bump', 150000, (v) => validateInput(v, 0, 300000, 150000))
-      };
-    } catch (e) {
-      console.error('Error making inputs:', e);
-      return defaults;
-    }
-  }
-
-  /* NPV calculation con manejo de errores */
-  function npvOption({H, r, km, precio, incentivo, mant, seguro, patentes, energia_fn, residual_pct, add_costs = [], type}) {
-    try {
-      const rr = r / 100;
-      const capex0 = precio - incentivo;
-      const residual = precio * (residual_pct / 100);
-      
-      let npv = capex0;
-      let cumVP = [];
-      let acc = capex0;
-      
-      let byCatVP = {energy: [], mant: [], segs: [], depr: [], events: []};
-      let byCatNom = {energy: [], mant: [], segs: [], depr: [], events: []};
-
-      for (let t = 1; t <= H; t++) {
-        const energy_nom = energia_fn();
-        const event_nom = add_costs.filter(c => c.year === t).reduce((a, c) => a + c.amount, 0);
-        const opex_nom = energy_nom + mant + seguro + patentes + event_nom;
-
-        const disc = Math.pow(1 + rr, t);
-        const vp = opex_nom / disc;
-
-        npv += vp;
-        acc += vp;
-        cumVP.push(acc);
-
-        byCatNom.energy.push(energy_nom);
-        byCatNom.mant.push(mant);
-        byCatNom.segs.push(seguro + patentes);
-        byCatNom.events.push(event_nom);
-        byCatNom.depr.push(0);
-
-        byCatVP.energy.push(energy_nom / disc);
-        byCatVP.mant.push(mant / disc);
-        byCatVP.segs.push((seguro + patentes) / disc);
-        byCatVP.events.push(event_nom / disc);
-        byCatVP.depr.push(0);
-      }
-
-      const vpResidual = residual / Math.pow(1 + rr, H);
-      npv -= vpResidual;
-      cumVP[cumVP.length - 1] -= vpResidual;
-
-      byCatVP.depr[H - 1] = -vpResidual;
-      byCatNom.depr[H - 1] = -residual;
-
-      const eac = npv * (rr / (1 - Math.pow(1 + rr, -H)));
-      const lco = eac / km;
-
-      return {npv, eac, lco, capex0, residual, cumVP, byCatVP, byCatNom};
-    } catch (e) {
-      console.error('Error in NPV calculation:', e);
-      return {npv: 0, eac: 0, lco: 0, capex0: 0, residual: 0, cumVP: [], byCatVP: {}, byCatNom: {}};
-    }
-  }
-
-  /* Build add costs */
-  function buildAddCosts(inp, type) {
-    const arr = [];
-    try {
-      if (type === 'EV' && inp.chg_batt && inp.H >= 8) {
-        arr.push({year: 8, amount: inp.batt_kwh * inp.batt_cost});
-      }
-      if (type === 'ICE' && inp.H >= 6 && inp.ice_bump > 0) {
-        for (let y = 6; y <= inp.H; y++) {
-          arr.push({year: y, amount: inp.ice_bump});
-        }
-      }
-    } catch (e) {
-      console.error('Error building add costs:', e);
-    }
-    return arr;
-  }
-
-  /* Manejo seguro de vehículos */
-  function addVehicle(type, modelKey) {
-    try {
-      if (state.vehicles.length >= 4) {
-        showMessage('Máximo 4 vehículos permitidos.', 'error');
-        return;
-      }
-      
-      const validTypes = ['EV', 'ICE'];
-      if (!validTypes.includes(type)) {
-        console.error('Invalid vehicle type:', type);
-        return;
-      }
-
-      const id = 'v' + Math.random().toString(36).slice(2, 8);
-      state.vehicles.push({
-        id: sanitizeInput(id),
-        type: sanitizeInput(type),
-        modelKey: sanitizeInput(modelKey || 'custom')
-      });
-      
-      renderVehList();
-    } catch (e) {
-      console.error('Error adding vehicle:', e);
-      showMessage('Error al agregar vehículo.', 'error');
-    }
-  }
-
-  function removeVehicle(id) {
-    try {
-      const sanitizedId = sanitizeInput(id);
-      state.vehicles = state.vehicles.filter(v => v.id !== sanitizedId);
-      renderVehList();
-    } catch (e) {
-      console.error('Error removing vehicle:', e);
-    }
-  }
-
-  /* Message system */
-  function showMessage(text, type = 'info') {
-    const existing = document.querySelector('.message-toast');
-    if (existing) {
-      existing.remove();
-    }
-
-    const toast = document.createElement('div');
-    toast.className = `message-toast ${type}`;
-    toast.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      padding: 12px 16px;
-      border-radius: 8px;
-      color: white;
-      font-weight: 500;
-      z-index: 1000;
-      opacity: 0;
-      transition: opacity 0.3s;
+/* Vehículos UI */
+function addVehicle(type, modelKey){
+  if(state.vehicles.length>=4){ alert('Máximo 4 vehículos.'); return; }
+  const id = 'v'+Math.random().toString(36).slice(2,8);
+  state.vehicles.push({id, type, modelKey: modelKey || 'custom'});
+  renderVehList();
+}
+function removeVehicle(id){
+  state.vehicles = state.vehicles.filter(v=>v.id!==id);
+  renderVehList();
+}
+function renderVehList(){
+  const box=$('vehList'); box.innerHTML='';
+  state.vehicles.forEach((v,idx)=>{
+    const m = findModel(v.type,v.modelKey);
+    const el=document.createElement('div'); el.className='veh';
+    el.innerHTML=`
+      <div class="top">
+        <span class="badge ${v.type==='EV'?'ev':'ice'}">${v.type}</span>
+        <button class="kill" title="Quitar" data-kill="${v.id}">✕</button>
+      </div>
+      <div class="small" style="margin-bottom:6px">#${idx+1}</div>
+      <div class="pill" style="margin-bottom:6px">
+        <label>Tipo</label>
+        <select data-type="${v.id}">
+          <option ${v.type==='EV'?'selected':''}>EV</option>
+          <option ${v.type==='ICE'?'selected':''}>ICE</option>
+        </select>
+      </div>
+      <div class="pill">
+        <label>Modelo</label>
+        <select data-model="${v.id}">
+          ${modelList(v.type).map(mm=>`<option value="${mm.key}" ${mm.key===v.modelKey?'selected':''}>${mm.name}</option>`).join('')}
+        </select>
+        <div class="small mono" style="margin-top:4px">${m.custom?'Usa controles Personalizado.':`Precio: CLP ${fmtN(m.price)} · ${v.type==='EV'?`Consumo: ${m.kwh100} kWh/100km`:`Consumo: ${m.l100} L/100km`}`}</div>
+      </div>
     `;
-    
-    switch (type) {
-      case 'error':
-        toast.style.background = '#dc2626';
+    box.appendChild(el);
+  });
+  box.querySelectorAll('[data-kill]').forEach(b=> b.onclick=()=> removeVehicle(b.getAttribute('data-kill')));
+  box.querySelectorAll('[data-type]').forEach(s=> s.onchange=(e)=>{
+    const id=e.target.getAttribute('data-type'); const v=state.vehicles.find(x=>x.id===id);
+    v.type = e.target.value; v.modelKey='custom'; renderVehList();
+  });
+  box.querySelectorAll('[data-model]').forEach(s=> s.onchange=(e)=>{
+    const id=e.target.getAttribute('data-model'); const v=state.vehicles.find(x=>x.id===id);
+    v.modelKey = e.target.value;
+  });
+}
+
+/* Cálculo principal */
+function calc(){
+  const inp = makeInputs();
+  const results=[];
+  state.vehicles.forEach((v)=>{
+    const mod = findModel(v.type, v.modelKey);
+    let precio,residual_pct,energia_fn,mant,seguro,patentes;
+    if(v.type==='EV'){
+      precio = mod.custom? inp.precio_ev : mod.price;
+      residual_pct = mod.custom? inp.res_ev : (mod.residual ?? inp.res_ev);
+      const kwh100 = mod.custom? inp.kwh100 : (mod.kwh100 ?? inp.kwh100);
+      if(mod.batt_kwh && !mod.custom) inp.batt_kwh = mod.batt_kwh; // actualizar evento batería
+      energia_fn = ()=> energiaEV(inp.km,kwh100,inp.tarifa_mode,inp.p_kwh_home,inp.p_kwh_valle,inp.p_kwh_punta,inp.share_valle,inp.p_kwh_pub,inp.mix_home);
+      mant=inp.mant_ev; seguro=inp.seg_ev; patentes=inp.pat_ev;
+      results.push({id:v.id, label:`EV — ${mod.name}`, type:'EV',
+        out: npvOption({H:inp.H,r:inp.r,km:inp.km,precio,incentivo:inp.inc_ev,mant,seguro,patentes,energia_fn,residual_pct,add_costs:buildAddCosts(inp,'EV')})});
+    }else{
+      precio = mod.custom? inp.precio_ice : mod.price;
+      residual_pct = mod.custom? inp.res_ice : (mod.residual ?? inp.res_ice);
+      const l100 = mod.custom? inp.l100 : (mod.l100 ?? inp.l100);
+      energia_fn = ()=> energiaICE(inp.km,l100,inp.p_fuel);
+      mant=inp.mant_ice; seguro=inp.seg_ice; patentes=inp.pat_ice;
+      results.push({id:v.id, label:`ICE — ${mod.name}`, type:'ICE',
+        out: npvOption({H:inp.H,r:inp.r,km:inp.km,precio,incentivo:0,mant,seguro,patentes,energia_fn,residual_pct,add_costs:buildAddCosts(inp,'ICE')})});
+    }
+  });
+
+  if(results.length===0){ alert('Agrega al menos un EV y un ICE.'); return; }
+
+  // cache resultados para el toggle VP/Nominal
+  lastResults = results.slice().sort((a,b)=> a.out.npv - b.out.npv);
+
+  const win = lastResults[0];
+  const second = lastResults[1] || null;
+
+  // Header KPIs
+  $('hdr_winner').textContent = win.label;
+  $('hdr_dnpv').textContent = second ? `CLP ${fmtN(second.out.npv - win.out.npv)}` : '—';
+  $('hdr_lco').textContent   = `CLP ${fmt2(win.out.lco)} / km`;
+  $('hdr_sav').textContent   = second ? `CLP ${fmtN(second.out.eac - win.out.eac)}/año` : '—';
+
+  // Costo normalizado por vehículo
+  const rows = lastResults.map(r=>({label:r.label, lco:r.out.lco, npv:r.out.npv, eac:r.out.eac}));
+  const bestLCO = win.out.lco;
+  $('normCosts').innerHTML = `
+    <div class="kpi-grid">
+      ${rows.map((r,i)=>{
+        const diffPct = (r.lco - bestLCO)/bestLCO*100;
+        return `<div class="kpi">
+          <small>${r.label}</small>
+          <div style="display:flex;justify-content:space-between"><b>CLP ${fmt2(r.lco)}/km</b><span class="small ${i===0?'winner':''}">${i===0? 'Ganador' : (diffPct>=0? '+' : '')+fmt2(diffPct)+'%'}</span></div>
+          <div class="small">NPV: CLP ${fmtN(r.npv)} · EAC: CLP ${fmtN(r.eac)}/año</div>
+        </div>`;
+      }).join('')}
+    </div>
+  `;
+
+  // Líneas acumuladas VP
+  const years = Array.from({length: makeInputs().H }, (_,i)=> i+1);
+  if(linesChart) linesChart.destroy();
+  linesChart = new Chart($('lines').getContext('2d'), {
+    type:'line',
+    data:{ labels: years.map(y=>'Año '+y),
+      datasets: lastResults.map((r)=>({label:r.label, data:r.out.cumVP, tension:.1, pointRadius:2, borderWidth:2}))
+    },
+    options:{ responsive:true, scales:{ y:{title:{display:true,text:'Costo acumulado (CLP, VP)'}}}, plugins:{legend:{position:'bottom'}} }
+  });
+  // Intersección aprox (ganador vs resto)
+  let earliest = null;
+  for(let k=1;k<lastResults.length;k++){
+    const a = win.out.cumVP, b = lastResults[k].out.cumVP;
+    for(let i=1;i<years.length;i++){
+      const prev = a[i-1]-b[i-1], cur = a[i]-b[i];
+      if((prev<=0&&cur>=0)||(prev>=0&&cur<=0)){
+        const t = Math.abs(prev)/(Math.abs(prev)+Math.abs(cur));
+        const y = i + t;
+        if(!earliest || y < earliest) earliest = y;
         break;
-      case 'success':
-        toast.style.background = '#16a34a';
-        break;
-      default:
-        toast.style.background = '#6c7ae0';
+      }
     }
+  }
+  $('crossnote').textContent = 'Intersección: ' + (earliest ? `≈ Año ${earliest.toFixed(2)}` : '—');
 
-    toast.textContent = sanitizeInput(text);
-    document.body.appendChild(toast);
+  // Tabs + sparklines
+  renderTabs(lastResults);
+  renderCategorySparklines(lastResults, (tabsActive || lastResults[0].id));
 
-    // Fade in
-    requestAnimationFrame(() => {
-      toast.style.opacity = '1';
+  // Tornado simple (1° vs 2°)
+  const baseDelta = lastResults[1]? (lastResults[0].out.npv - lastResults[1].out.npv) : 0;
+  renderTornado(makeInputs(), baseDelta);
+
+  // Tablas
+  renderTables(lastResults);
+}
+
+/* Tabs + Sparklines */
+function renderTabs(results){
+  const bar=$('vehTabs'); bar.innerHTML='';
+  results.forEach((r,i)=>{
+    const b=document.createElement('button');
+    b.className='tab'+( (tabsActive?tabsActive===r.id : i===0)?' active':'' );
+    b.textContent=r.label;
+    b.onclick=()=>{ tabsActive=r.id; renderTabs(results); renderCategorySparklines(results, r.id); };
+    bar.appendChild(b);
+  });
+  if(!tabsActive && results[0]) tabsActive = results[0].id;
+}
+function renderCategorySparklines(results, id){
+  const r = results.find(x=>x.id===id) || results[0];
+  const H = makeInputs().H;
+  const years = Array.from({length:H}, (_,i)=> ''+(i+1));
+  const cats = r.out.byCatVP; // VP en sparklines
+  const cfg=(ctx,data)=> new Chart(ctx,{type:'line',data:{labels:years,datasets:[{data, tension:.3, pointRadius:0, borderWidth:2}]},options:{plugins:{legend:{display:false}}, scales:{x:{display:false},y:{display:false}}}});
+  ['energy','mant','segs','depr'].forEach(k=>{ if(catCharts[k]) catCharts[k].destroy(); });
+  catCharts.energy = cfg($('cat_energy').getContext('2d'), cats.energy);
+  catCharts.mant   = cfg($('cat_mant').getContext('2d'),   cats.mant);
+  catCharts.segs   = cfg($('cat_segs').getContext('2d'),   cats.segs);
+  catCharts.depr   = cfg($('cat_depr').getContext('2d'),   cats.depr);
+}
+
+/* Tornado (sobre ΔNPV de 1° vs 2°) */
+function renderTornado(inp, baseDelta){
+  const dNPV = (tw)=> {
+    const pair = simulatePair(inp, tw);
+    return pair.main.npv - pair.alt.npv;
+  };
+  const tests = [
+    {k:'km', lb:'Km/año (±20%)', l: inp.km*0.8, h: inp.km*1.2},
+    {k:'p_kwh_home', lb:'kWh hogar (±30%)', l: Math.round(inp.p_kwh_home*0.7), h: Math.round(inp.p_kwh_home*1.3), cond: inp.tarifa_mode==='flat'},
+    {k:'p_kwh_valle', lb:'kWh valle (±30%)', l: Math.round(inp.p_kwh_valle*0.7), h: Math.round(inp.p_kwh_valle*1.3), cond: inp.tarifa_mode==='tou'},
+    {k:'p_kwh_punta', lb:'kWh punta (±30%)', l: Math.round(inp.p_kwh_punta*0.7), h: Math.round(inp.p_kwh_punta*1.3), cond: inp.tarifa_mode==='tou'},
+    {k:'p_kwh_pub', lb:'kWh pública (±30%)', l: Math.round(inp.p_kwh_pub*0.7), h: Math.round(inp.p_kwh_pub*1.3)},
+    {k:'kwh100', lb:'Consumo EV (±20%)', l: inp.kwh100*0.8, h: inp.kwh100*1.2},
+    {k:'l100', lb:'Consumo ICE (±20%)', l: inp.l100*0.8, h: inp.l100*1.2},
+    {k:'p_fuel', lb:'Combustible (±30%)', l: Math.round(inp.p_fuel*0.7), h: Math.round(inp.p_fuel*1.3)},
+    {k:'mix_home', lb:'% carga hogar (±20 pt)', l: Math.max(0, inp.mix_home-20), h: Math.min(100, inp.mix_home+20)},
+    {k:'r', lb:'Tasa r (±4 pt)', l: Math.max(0, inp.r-4), h: inp.r+4},
+    {k:'res_ev', lb:'Residual EV (±10 pt)', l: Math.max(0, inp.res_ev-10), h: inp.res_ev+10},
+    {k:'res_ice', lb:'Residual ICE (±10 pt)', l: Math.max(0, inp.res_ice-10), h: inp.res_ice+10},
+  ].filter(t=>t.cond===undefined || t.cond);
+  const labels=[], lows=[], highs=[];
+  tests.forEach(t=>{
+    const dL = dNPV({[t.k]: t.l});
+    const dH = dNPV({[t.k]: t.h});
+    labels.push(t.lb); lows.push(dL); highs.push(dH);
+  });
+  const spans = labels.map((_,i)=> Math.max(Math.abs(lows[i]-baseDelta), Math.abs(highs[i]-baseDelta)));
+  const order = spans.map((v,i)=>[v,i]).sort((a,b)=>b[0]-a[0]).map(x=>x[1]);
+  const L = order.map(i=>labels[i]), lo=order.map(i=>Math.min(lows[i],highs[i])), hi=order.map(i=>Math.max(lows[i],highs[i]));
+  if(tornadoChart) tornadoChart.destroy();
+  tornadoChart = new Chart($('tornado').getContext('2d'),{
+    type:'bar',
+    data:{labels:L, datasets:[{label:'Mín (ΔNPV)',data:lo},{label:'Máx (ΔNPV)',data:hi}]},
+    options:{indexAxis:'y', plugins:{legend:{position:'bottom'}}, scales:{x:{title:{display:true,text:'ΔNPV = NPV_main − NPV_alt (CLP)'}}}}
+  });
+}
+function simulatePair(inp, tweak){
+  const list = state.vehicles.length>=2 ? state.vehicles.slice(0,2).map(v=>({type:v.type, mod:findModel(v.type,v.modelKey)}))
+                                        : [{type:'EV',mod:{custom:true}}, {type:'ICE',mod:{custom:true}}];
+  const res = list.map(x=> computeSingle(inp, x.type, x.mod, tweak));
+  res.sort((a,b)=> a.npv-b.npv);
+  return {main:res[0], alt:res[1]};
+}
+function computeSingle(inp,type,mod,tweak){
+  const p = {...inp, ...(tweak||{})};
+  let precio,residual_pct,energia_fn,mant,seguro,patentes,add_costs;
+  if(type==='EV'){
+    precio = mod.custom? p.precio_ev : (mod.price ?? p.precio_ev);
+    residual_pct = mod.custom? p.res_ev : (mod.residual ?? p.res_ev);
+    const kwh100 = mod.custom? p.kwh100 : (mod.kwh100 ?? p.kwh100);
+    energia_fn = ()=> energiaEV(p.km,kwh100,p.tarifa_mode,p.p_kwh_home,p.p_kwh_valle,p.p_kwh_punta,p.share_valle,p.p_kwh_pub,p.mix_home);
+    mant=p.mant_ev; seguro=p.seg_ev; patentes=p.pat_ev; add_costs=buildAddCosts(p,'EV');
+    return npvOption({H:p.H,r:p.r,km:p.km,precio,incentivo:p.inc_ev,mant,seguro,patentes,energia_fn,residual_pct,add_costs,type:'EV'});
+  }else{
+    precio = mod.custom? p.precio_ice : (mod.price ?? p.precio_ice);
+    residual_pct = mod.custom? p.res_ice : (mod.residual ?? p.res_ice);
+    const l100 = mod.custom? p.l100 : (mod.l100 ?? p.l100);
+    energia_fn = ()=> energiaICE(p.km,l100,p.p_fuel);
+    mant=p.mant_ice; seguro=p.seg_ice; patentes=p.pat_ice; add_costs=buildAddCosts(p,'ICE');
+    return npvOption({H:p.H,r:p.r,km:p.km,precio,incentivo:0,mant,seguro,patentes,energia_fn,residual_pct,add_costs,type:'ICE'});
+  }
+}
+
+/* Tablas VP/Nominal */
+function renderTables(results){
+  const H = +$('H').value;
+  const nominal = $('toggleNominal').checked;
+  const host=$('tables'); host.innerHTML='';
+  results.forEach((rsl)=>{
+    const by = nominal ? rsl.out.byCatNom : rsl.out.byCatVP;
+    const years = Array.from({length:H}, (_,i)=> i+1);
+    const rows = years.map((y,i)=>{
+      const energy = by.energy[i];
+      const mant   = by.mant[i];
+      const segs   = by.segs[i];
+      const events = by.events[i];
+      const depr   = by.depr[i];
+      const total  = energy+mant+segs+events+depr;
+      return {y, energy, mant, segs, events, depr, total};
     });
-
-    // Auto remove
-    setTimeout(() => {
-      if (toast.parentNode) {
-        toast.style.opacity = '0';
-        setTimeout(() => toast.remove(), 300);
-      }
-    }, 3000);
-  }
-
-  /* Render vehicle list con seguridad */
-  function renderVehList() {
-    try {
-      const box = $('vehList');
-      if (!box) return;
-      
-      box.innerHTML = '';
-      
-      state.vehicles.forEach((v, idx) => {
-        const m = findModel(v.type, v.modelKey);
-        if (!m) return;
-
-        const el = document.createElement('div');
-        el.className = 'veh';
-        
-        const typeOptions = ['EV', 'ICE'].map(t => 
-          `<option value="${t}" ${v.type === t ? 'selected' : ''}>${t}</option>`
-        ).join('');
-        
-        const modelOptions = modelList(v.type).map(mm => 
-          `<option value="${sanitizeInput(mm.key)}" ${mm.key === v.modelKey ? 'selected' : ''}>${sanitizeInput(mm.name)}</option>`
-        ).join('');
-
-        const modelInfo = m.custom 
-          ? 'Usa controles Personalizado.' 
-          : `Precio: CLP ${fmtN(m.price)} · ${v.type === 'EV' 
-              ? `Consumo: ${m.kwh100} kWh/100km` 
-              : `Consumo: ${m.l100} L/100km`}`;
-
-        el.innerHTML = `
-          <div class="top">
-            <span class="badge ${v.type === 'EV' ? 'ev' : 'ice'}">${sanitizeInput(v.type)}</span>
-            <button class="kill" title="Quitar" data-kill="${sanitizeInput(v.id)}">✕</button>
-          </div>
-          <div class="small" style="margin-bottom:6px">#${idx + 1}</div>
-          <div class="pill" style="margin-bottom:6px">
-            <label>Tipo</label>
-            <select data-type="${sanitizeInput(v.id)}">
-              ${typeOptions}
-            </select>
-          </div>
-          <div class="pill">
-            <label>Modelo</label>
-            <select data-model="${sanitizeInput(v.id)}">
-              ${modelOptions}
-            </select>
-            <div class="small mono" style="margin-top:4px">${sanitizeInput(modelInfo)}</div>
-          </div>
-        `;
-        
-        box.appendChild(el);
-      });
-
-      // Wire events con validación
-      box.querySelectorAll('[data-kill]').forEach(b => {
-        b.onclick = (e) => {
-          e.preventDefault();
-          removeVehicle(b.getAttribute('data-kill'));
-        };
-      });
-
-      box.querySelectorAll('[data-type]').forEach(s => {
-        s.onchange = (e) => {
-          const id = sanitizeInput(e.target.getAttribute('data-type'));
-          const v = state.vehicles.find(x => x.id === id);
-          if (v && ['EV', 'ICE'].includes(e.target.value)) {
-            v.type = sanitizeInput(e.target.value);
-            v.modelKey = 'custom';
-            renderVehList();
+    const sum = (k)=> rows.reduce((a,x)=>a+x[k],0);
+    const tbl = document.createElement('div'); tbl.style.margin='10px 0 18px';
+    tbl.innerHTML = `<h3 style="margin:6px 0">${rsl.label} ${nominal? '(Nominal)' : '(Valor Presente)'}</h3>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Rubro \\ Año</th>
+            ${years.map(y=>`<th>${y}</th>`).join('')}
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Energía</td>${rows.map(x=>`<td>${fmtN(x.energy)}</td>`).join('')}<td>${fmtN(sum('energy'))}</td></tr>
+          <tr><td>Mantención</td>${rows.map(x=>`<td>${fmtN(x.mant)}</td>`).join('')}<td>${fmtN(sum('mant'))}</td></tr>
+          <tr><td>Seguros/Permisos</td>${rows.map(x=>`<td>${fmtN(x.segs)}</td>`).join('')}<td>${fmtN(sum('segs'))}</td></tr>
+          <tr><td>Eventos</td>${rows.map(x=>`<td>${fmtN(x.events)}</td>`).join('')}<td>${fmtN(sum('events'))}</td></tr>
+          <tr><td>Depreciación/Residual</td>${rows.map(x=>`<td>${fmtN(x.depr)}</td>`).join('')}<td>${fmtN(sum('depr'))}</td></tr>
+        </tbody>
+        <tfoot>
+          ${ nominal
+            ? `<tr><td><b>Total nominal (sin Capex)</b></td>${years.map(_=>`<td></td>`).join('')}<td><b>${fmtN(sum('total'))}</b></td></tr>
+               <tr><td><b>Capex inicial − Incentivo</b></td>${years.map(_=>`<td></td>`).join('')}<td><b>${fmtN(rsl.out.capex0)}</b></td></tr>
+               <tr><td><b>Total nominal + Capex</b></td>${years.map(_=>`<td></td>`).join('')}<td><b>${fmtN(sum('total')+rsl.out.capex0)}</b></td></tr>
+               <tr><td><b>CLP/km (de EAC)</b></td>${years.map(_=>`<td></td>`).join('')}<td><b>${fmt2(rsl.out.lco)}</b></td></tr>`
+            : `<tr><td><b>NPV (sin Capex)</b></td>${years.map(_=>`<td></td>`).join('')}<td><b>${fmtN(sum('total'))}</b></td></tr>
+               <tr><td><b>Capex inicial − Incentivo</b></td>${years.map(_=>`<td></td>`).join('')}<td><b>${fmtN(rsl.out.capex0)}</b></td></tr>
+               <tr><td><b>NPV total</b></td>${years.map(_=>`<td></td>`).join('')}<td><b>${fmtN(rsl.out.npv)}</b></td></tr>
+               <tr><td><b>CLP/km</b></td>${years.map(_=>`<td></td>`).join('')}<td><b>${fmt2(rsl.out.lco)}</b></td></tr>`
           }
-        };
-      });
+        </tfoot>
+      </table>`;
+    host.appendChild(tbl);
+  });
+}
 
-      box.querySelectorAll('[data-model]').forEach(s => {
-        s.onchange = (e) => {
-          const id = sanitizeInput(e.target.getAttribute('data-model'));
-          const v = state.vehicles.find(x => x.id === id);
-          if (v) {
-            v.modelKey = sanitizeInput(e.target.value);
-          }
-        };
-      });
-    } catch (e) {
-      console.error('Error rendering vehicle list:', e);
-    }
+/* Share, ayuda, cómo calculamos */
+$('shareUrl').addEventListener('click', ()=>{
+  const inp=makeInputs();
+  const params=new URLSearchParams();
+  Object.entries(inp).forEach(([k,v])=> params.set(k,String(v)));
+  params.set('veh', state.vehicles.map(v=>`${v.type}:${v.modelKey}`).join('|'));
+  const url=`${location.origin}${location.pathname}?${params.toString()}`;
+  navigator.clipboard.writeText(url).then(()=> alert('Link copiado al portapapeles.'));
+});
+$('help').onclick=()=> $('modalHelp').classList.add('show');
+$('openHow').onclick=(e)=>{ e.preventDefault(); $('modalHow').classList.add('show'); };
+document.querySelectorAll('.closex').forEach(x=> x.onclick=()=> $(x.getAttribute('data-x')).classList.remove('show'));
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ document.querySelectorAll('.modal').forEach(m=>m.classList.remove('show')); }});
+
+/* Botón Calcular en header */
+$('calcHeader').addEventListener('click', calc);
+/* Toggle VP/Nominal repinta tablas con últimos resultados */
+$('toggleNominal').addEventListener('change', ()=> { if(lastResults.length) renderTables(lastResults); });
+
+/* Añadir vehículos */
+$('addEV').onclick=()=> addVehicle('EV');
+$('addICE').onclick=()=> addVehicle('ICE');
+
+/* Init */
+(function init(){
+  Object.entries(defaults).forEach(([k,v])=>{ if($(k)){ if(typeof v==='boolean') $(k).checked=v; else $(k).value=v; }});
+  for(const [k,v] of qs.entries()){
+    if(k==='veh') continue;
+    if($(k)) { if($(k).type==='checkbox') $(k).checked=(v==='true'||v==='1'); else $(k).value=(/^\d+(\.\d+)?$/.test(v)? Number(v): v); }
   }
-
-  /* Variables globales para charts */
-  let tornadoChart = null, linesChart = null, catCharts = {};
-
-  /* Función principal de cálculo */
-  function calc() {
-    if (state.isCalculating) {
-      showMessage('Cálculo en progreso...', 'info');
-      return;
-    }
-
-    try {
-      state.isCalculating = true;
-      
-      const inp = makeInputs();
-      const results = [];
-      
-      if (state.vehicles.length === 0) {
-        showMessage('Agrega al menos un vehículo para calcular.', 'error');
-        return;
-      }
-
-      state.vehicles.forEach((v) => {
-        try {
-          const mod = findModel(v.type, v.modelKey);
-          if (!mod) return;
-
-          let precio, residual_pct, energia_fn, mant, seguro, patentes;
-          
-          if (v.type === 'EV') {
-            precio = mod.custom ? inp.precio_ev : mod.price;
-            residual_pct = mod.custom ? inp.res_ev : (mod.residual ?? inp.res_ev);
-            const kwh100 = mod.custom ? inp.kwh100 : (mod.kwh100 ?? inp.kwh100);
-            
-            if (mod.batt_kwh && !mod.custom) {
-              inp.batt_kwh = mod.batt_kwh;
-            }
-            
-            energia_fn = () => energiaEV(
-              inp.km, kwh100, inp.tarifa_mode, 
-              inp.p_kwh_home, inp.p_kwh_valle, inp.p_kwh_punta, 
-              inp.share_valle, inp.p_kwh_pub, inp.mix_home
-            );
-            
-            mant = inp.mant_ev;
-            seguro = inp.seg_ev;
-            patentes = inp.pat_ev;
-            
-            results.push({
-              id: v.id,
-              label: `EV — ${sanitizeInput(mod.name)}`,
-              type: 'EV',
-              out: npvOption({
-                H: inp.H, r: inp.r, km: inp.km, precio, 
-                incentivo: inp.inc_ev, mant, seguro, patentes, 
-                energia_fn, residual_pct, 
-                add_costs: buildAddCosts(inp, 'EV')
-              })
-            });
-          } else {
-            precio = mod.custom ? inp.precio_ice : mod.price;
-            residual_pct = mod.custom ? inp.res_ice : (mod.residual ?? inp.res_ice);
-            const l100 = mod.custom ? inp.l100 : (mod.l100 ?? inp.l100);
-            
-            energia_fn = () => energiaICE(inp.km, l100, inp.p_fuel);
-            mant = inp.mant_ice;
-            seguro = inp.seg_ice;
-            patentes = inp.pat_ice;
-            
-            results.push({
-              id: v.id,
-              label: `ICE — ${sanitizeInput(mod.name)}`,
-              type: 'ICE',
-              out: npvOption({
-                H: inp.H, r: inp.r, km: inp.km, precio, 
-                incentivo: 0, mant, seguro, patentes, 
-                energia_fn, residual_pct, 
-                add_costs: buildAddCosts(inp, 'ICE')
-              })
-            });
-          }
-        } catch (e) {
-          console.error('Error processing vehicle:', v.id, e);
-        }
-      });
-
-      if (results.length === 0) {
-        showMessage('No se pudieron procesar los vehículos.', 'error');
-        return;
-      }
-
-      // Sort por NPV
-      results.sort((a, b) => a.out.npv - b.out.npv);
-      
-      const win = results[0];
-      const second = results[1] || null;
-
-      // Update header KPIs
-      updateHeader(win, second);
-      
-      // Update results display
-      updateNormCosts(results);
-      updateLineChart(results);
-      renderTabs(results);
-      renderCategorySparklines(results, tabsActive || results[0].id);
-      renderTornado(inp, second ? (win.out.npv - second.out.npv) : 0);
-      renderTables(results);
-      
-      state.lastResults = results;
-      showMessage('Cálculo completado exitosamente.', 'success');
-      
-    } catch (e) {
-      console.error('Error in calculation:', e);
-      showMessage('Error durante el cálculo.', 'error');
-    } finally {
-      state.isCalculating = false;
-    }
-  }
-
-  /* Update functions */
-  function updateHeader(win, second) {
-    try {
-      const hdrWinner = $('hdr_winner');
-      const hdrDnpv = $('hdr_dnpv');
-      const hdrLco = $('hdr_lco');
-      const hdrSav = $('hdr_sav');
-
-      if (hdrWinner) hdrWinner.textContent = win.label;
-      if (hdrDnpv) hdrDnpv.textContent = second ? `CLP ${fmtN(second.out.npv - win.out.npv)}` : '—';
-      if (hdrLco) hdrLco.textContent = `CLP ${fmt2(win.out.lco)} / km`;
-      if (hdrSav) hdrSav.textContent = second ? `CLP ${fmtN(second.out.eac - win.out.eac)}/año` : '—';
-    } catch (e) {
-      console.error('Error updating header:', e);
-    }
-  }
-
-  function updateNormCosts(results) {
-    try {
-      const normCosts = $('normCosts');
-      if (!normCosts) return;
-
-      const rows = results.map(r => ({
-        label: r.label,
-        lco: r.out.lco,
-        npv: r.out.npv,
-        eac: r.out.eac
-      }));
-
-      const bestLCO = results[0].out.lco;
-      
-      const html = `
-        <div class="kpi-grid">
-          ${rows.map((r, i) => {
-            const diffPct = (r.lco - bestLCO) / bestLCO * 100;
-            return `<div class="kpi">
-              <small>${sanitizeInput(r.label)}</small>
-              <div style="display:flex;justify-content:space-between">
-                <b>CLP ${fmt2(r.lco)}/km</b>
-                <span class="small ${i === 0 ? 'winner' : ''}">${i === 0 ? 'Ganador' : (diffPct >= 0 ? '+' : '') + fmt2(diffPct) + '%'}</span>
-              </div>
-              <div class="small">NPV: CLP ${fmtN(r.npv)} · EAC: CLP ${fmtN(r.eac)}/año</div>
-            </div>`;
-          }).join('')}
-        </div>
-      `;
-      
-      normCosts.innerHTML = html;
-    } catch (e) {
-      console.error('Error updating norm costs:', e);
-    }
-  }
-
-  function updateLineChart(results) {
-    try {
-      const canvas = $('lines');
-      if (!canvas) return;
-
-      const H = makeInputs().H;
-      const years = Array.from({length: H}, (_, i) => i + 1);
-      
-      if (linesChart) {
-        linesChart.destroy();
-      }
-
-      linesChart = new Chart(canvas.getContext('2d'), {
-        type: 'line',
-        data: {
-          labels: years.map(y => 'Año ' + y),
-          datasets: results.map((r, i) => ({
-            label: sanitizeInput(r.label),
-            data: r.out.cumVP,
-            tension: 0.1,
-            pointRadius: 2,
-            borderWidth: 2,
-            borderColor: `hsl(${i * 60}, 70%, 50%)`,
-            backgroundColor: `hsla(${i * 60}, 70%, 50%, 0.1)`
-          }))
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            y: {
-              title: {
-                display: true,
-                text: 'Costo acumulado (CLP, VP)'
-              }
-            }
-          },
-          plugins: {
-            legend: {
-              position: 'bottom'
-            }
-          }
-        }
-      });
-
-      // Calculate intersection
-      const crossnote = $('crossnote');
-      if (crossnote && results.length >= 2) {
-        let earliest = null;
-        const win = results[0];
-        
-        for (let k = 1; k < results.length; k++) {
-          const a = win.out.cumVP;
-          const b = results[k].out.cumVP;
-          
-          for (let i = 1; i < years.length; i++) {
-            const prev = a[i-1] - b[i-1];
-            const cur = a[i] - b[i];
-            
-            if ((prev <= 0 && cur >= 0) || (prev >= 0 && cur <= 0)) {
-              const t = Math.abs(prev) / (Math.abs(prev) + Math.abs(cur));
-              const y = i + t;
-              
-              if (!earliest || y < earliest) {
-                earliest = y;
-              }
-              break;
-            }
-          }
-        }
-        
-        crossnote.textContent = 'Intersección: ' + (earliest ? `≈ Año ${earliest.toFixed(2)}` : '—');
-      }
-    } catch (e) {
-      console.error('Error updating line chart:', e);
-    }
-  }
-
-  /* Tabs and sparklines */
-  let tabsActive = null;
-
-  function renderTabs(results) {
-    try {
-      const bar = $('vehTabs');
-      if (!bar) return;
-
-      bar.innerHTML = '';
-      
-      results.forEach((r, i) => {
-        const b = document.createElement('button');
-        b.className = 'tab' + ((tabsActive ? tabsActive === r.id : i === 0) ? ' active' : '');
-        b.textContent = sanitizeInput(r.label);
-        b.onclick = () => {
-          tabsActive = r.id;
-          renderTabs(results);
-          renderCategorySparklines(results, r.id);
-        };
-        bar.appendChild(b);
-      });
-      
-      if (!tabsActive && results[0]) {
-        tabsActive = results[0].id;
-      }
-    } catch (e) {
-      console.error('Error rendering tabs:', e);
-    }
-  }
-
-  function renderCategorySparklines(results, id) {
-    try {
-      const r = results.find(x => x.id === id) || results[0];
-      if (!r) return;
-
-      const H = makeInputs().H;
-      const years = Array.from({length: H}, (_, i) => '' + (i + 1));
-      const cats = r.out.byCatVP;
-
-      const createSparkline = (ctx, data, color = '#6c7ae0') => {
-        if (!ctx || !data) return null;
-        
-        return new Chart(ctx, {
-          type: 'line',
-          data: {
-            labels: years,
-            datasets: [{
-              data: data,
-              tension: 0.3,
-              pointRadius: 0,
-              borderWidth: 2,
-              borderColor: color,
-              backgroundColor: color + '20'
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: { display: false }
-            },
-            scales: {
-              x: { display: false },
-              y: { display: false }
-            }
-          }
-        });
-      };
-
-      // Destroy existing charts
-      ['energy', 'mant', 'segs', 'depr'].forEach(k => {
-        if (catCharts[k]) {
-          catCharts[k].destroy();
-        }
-      });
-
-      // Create new charts
-      const energyCanvas = $('cat_energy');
-      const mantCanvas = $('cat_mant');
-      const segsCanvas = $('cat_segs');
-      const deprCanvas = $('cat_depr');
-
-      if (energyCanvas && cats.energy) {
-        catCharts.energy = createSparkline(energyCanvas.getContext('2d'), cats.energy, '#f59e0b');
-      }
-      if (mantCanvas && cats.mant) {
-        catCharts.mant = createSparkline(mantCanvas.getContext('2d'), cats.mant, '#10b981');
-      }
-      if (segsCanvas && cats.segs) {
-        catCharts.segs = createSparkline(segsCanvas.getContext('2d'), cats.segs, '#6366f1');
-      }
-      if (deprCanvas && cats.depr) {
-        catCharts.depr = createSparkline(deprCanvas.getContext('2d'), cats.depr, '#ef4444');
-      }
-    } catch (e) {
-      console.error('Error rendering category sparklines:', e);
-    }
-  }
-
-  /* Tornado chart */
-  function renderTornado(inp, baseDelta) {
-    try {
-      const tornadoCanvas = $('tornado');
-      if (!tornadoCanvas) return;
-
-      if (tornadoChart) {
-        tornadoChart.destroy();
-      }
-
-      const dNPV = (tweak) => {
-        const pair = simulatePair(inp, tweak);
-        return pair.main.npv - pair.alt.npv;
-      };
-
-      const tests = [
-        {k: 'km', lb: 'Km/año (±20%)', l: inp.km * 0.8, h: inp.km * 1.2},
-        {k: 'p_kwh_home', lb: 'kWh hogar (±30%)', l: Math.round(inp.p_kwh_home * 0.7), h: Math.round(inp.p_kwh_home * 1.3), cond: inp.tarifa_mode === 'flat'},
-        {k: 'p_kwh_valle', lb: 'kWh valle (±30%)', l: Math.round(inp.p_kwh_valle * 0.7), h: Math.round(inp.p_kwh_valle * 1.3), cond: inp.tarifa_mode === 'tou'},
-        {k: 'p_kwh_punta', lb: 'kWh punta (±30%)', l: Math.round(inp.p_kwh_punta * 0.7), h: Math.round(inp.p_kwh_punta * 1.3), cond: inp.tarifa_mode === 'tou'},
-        {k: 'p_kwh_pub', lb: 'kWh pública (±30%)', l: Math.round(inp.p_kwh_pub * 0.7), h: Math.round(inp.p_kwh_pub * 1.3)},
-        {k: 'kwh100', lb: 'Consumo EV (±20%)', l: inp.kwh100 * 0.8, h: inp.kwh100 * 1.2},
-        {k: 'l100', lb: 'Consumo ICE (±20%)', l: inp.l100 * 0.8, h: inp.l100 * 1.2},
-        {k: 'p_fuel', lb: 'Combustible (±30%)', l: Math.round(inp.p_fuel * 0.7), h: Math.round(inp.p_fuel * 1.3)},
-        {k: 'mix_home', lb: '% carga hogar (±20 pt)', l: Math.max(0, inp.mix_home - 20), h: Math.min(100, inp.mix_home + 20)},
-        {k: 'r', lb: 'Tasa r (±4 pt)', l: Math.max(0, inp.r - 4), h: inp.r + 4},
-        {k: 'res_ev', lb: 'Residual EV (±10 pt)', l: Math.max(0, inp.res_ev - 10), h: inp.res_ev + 10},
-        {k: 'res_ice', lb: 'Residual ICE (±10 pt)', l: Math.max(0, inp.res_ice - 10), h: inp.res_ice + 10},
-      ].filter(t => t.cond === undefined || t.cond);
-
-      const labels = [], lows = [], highs = [];
-      
-      tests.forEach(t => {
-        try {
-          const dL = dNPV({[t.k]: t.l});
-          const dH = dNPV({[t.k]: t.h});
-          labels.push(sanitizeInput(t.lb));
-          lows.push(dL);
-          highs.push(dH);
-        } catch (e) {
-          console.error('Error in tornado test:', t.k, e);
-        }
-      });
-
-      const spans = labels.map((_, i) => Math.max(Math.abs(lows[i] - baseDelta), Math.abs(highs[i] - baseDelta)));
-      const order = spans.map((v, i) => [v, i]).sort((a, b) => b[0] - a[0]).map(x => x[1]);
-      
-      const L = order.map(i => labels[i]);
-      const lo = order.map(i => Math.min(lows[i], highs[i]));
-      const hi = order.map(i => Math.max(lows[i], highs[i]));
-
-      tornadoChart = new Chart(tornadoCanvas.getContext('2d'), {
-        type: 'bar',
-        data: {
-          labels: L,
-          datasets: [
-            {label: 'Mín (ΔNPV)', data: lo, backgroundColor: '#ef444480'},
-            {label: 'Máx (ΔNPV)', data: hi, backgroundColor: '#10b98180'}
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          indexAxis: 'y',
-          plugins: {
-            legend: {position: 'bottom'}
-          },
-          scales: {
-            x: {
-              title: {display: true, text: 'ΔNPV = NPV_main − NPV_alt (CLP)'}
-            }
-          }
-        }
-      });
-    } catch (e) {
-      console.error('Error rendering tornado chart:', e);
-    }
-  }
-
-  function simulatePair(inp, tweak) {
-    try {
-      const list = state.vehicles.length >= 2 
-        ? state.vehicles.slice(0, 2).map(v => ({type: v.type, mod: findModel(v.type, v.modelKey)}))
-        : [{type: 'EV', mod: {custom: true}}, {type: 'ICE', mod: {custom: true}}];
-        
-      const res = list.map(x => computeSingle(inp, x.type, x.mod, tweak));
-      res.sort((a, b) => a.npv - b.npv);
-      
-      return {main: res[0] || {npv: 0}, alt: res[1] || {npv: 0}};
-    } catch (e) {
-      console.error('Error simulating pair:', e);
-      return {main: {npv: 0}, alt: {npv: 0}};
-    }
-  }
-
-  function computeSingle(inp, type, mod, tweak) {
-    try {
-      const p = {...inp, ...(tweak || {})};
-      let precio, residual_pct, energia_fn, mant, seguro, patentes, add_costs;
-      
-      if (type === 'EV') {
-        precio = mod.custom ? p.precio_ev : (mod.price ?? p.precio_ev);
-        residual_pct = mod.custom ? p.res_ev : (mod.residual ?? p.res_ev);
-        const kwh100 = mod.custom ? p.kwh100 : (mod.kwh100 ?? p.kwh100);
-        
-        energia_fn = () => energiaEV(p.km, kwh100, p.tarifa_mode, p.p_kwh_home, p.p_kwh_valle, p.p_kwh_punta, p.share_valle, p.p_kwh_pub, p.mix_home);
-        mant = p.mant_ev;
-        seguro = p.seg_ev;
-        patentes = p.pat_ev;
-        add_costs = buildAddCosts(p, 'EV');
-        
-        return npvOption({H: p.H, r: p.r, km: p.km, precio, incentivo: p.inc_ev, mant, seguro, patentes, energia_fn, residual_pct, add_costs, type: 'EV'});
-      } else {
-        precio = mod.custom ? p.precio_ice : (mod.price ?? p.precio_ice);
-        residual_pct = mod.custom ? p.res_ice : (mod.residual ?? p.res_ice);
-        const l100 = mod.custom ? p.l100 : (mod.l100 ?? p.l100);
-        
-        energia_fn = () => energiaICE(p.km, l100, p.p_fuel);
-        mant = p.mant_ice;
-        seguro = p.seg_ice;
-        patentes = p.pat_ice;
-        add_costs = buildAddCosts(p, 'ICE');
-        
-        return npvOption({H: p.H, r: p.r, km: p.km, precio, incentivo: 0, mant, seguro, patentes, energia_fn, residual_pct, add_costs, type: 'ICE'});
-      }
-    } catch (e) {
-      console.error('Error computing single:', e);
-      return {npv: 0};
-    }
-  }
-
-  /* Tables */
-  function renderTables(results) {
-    try {
-      const tablesContainer = $('tables');
-      const nominalToggle = $('toggleNominal');
-      
-      if (!tablesContainer || !results.length) return;
-
-      const H = makeInputs().H;
-      const nominal = nominalToggle ? nominalToggle.checked : false;
-      
-      tablesContainer.innerHTML = '';
-      
-      results.forEach((rsl) => {
-        const by = nominal ? rsl.out.byCatNom : rsl.out.byCatVP;
-        const years = Array.from({length: H}, (_, i) => i + 1);
-        
-        const rows = years.map((y, i) => {
-          const energy = by.energy[i] || 0;
-          const mant = by.mant[i] || 0;
-          const segs = by.segs[i] || 0;
-          const events = by.events[i] || 0;
-          const depr = by.depr[i] || 0;
-          const total = energy + mant + segs + events + depr;
-          
-          return {y, energy, mant, segs, events, depr, total};
-        });
-
-        const sum = (k) => rows.reduce((a, x) => a + (x[k] || 0), 0);
-        
-        const tbl = document.createElement('div');
-        tbl.style.margin = '10px 0 18px';
-        
-        tbl.innerHTML = `
-          <h3 style="margin:6px 0">${sanitizeInput(rsl.label)} ${nominal ? '(Nominal)' : '(Valor Presente)'}</h3>
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Rubro \\ Año</th>
-                ${years.map(y => `<th>${y}</th>`).join('')}
-                <th>Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr><td>Energía</td>${rows.map(x => `<td>${fmtN(x.energy)}</td>`).join('')}<td>${fmtN(sum('energy'))}</td></tr>
-              <tr><td>Mantención</td>${rows.map(x => `<td>${fmtN(x.mant)}</td>`).join('')}<td>${fmtN(sum('mant'))}</td></tr>
-              <tr><td>Seguros/Permisos</td>${rows.map(x => `<td>${fmtN(x.segs)}</td>`).join('')}<td>${fmtN(sum('segs'))}</td></tr>
-              <tr><td>Eventos</td>${rows.map(x => `<td>${fmtN(x.events)}</td>`).join('')}<td>${fmtN(sum('events'))}</td></tr>
-              <tr><td>Depreciación/Residual</td>${rows.map(x => `<td>${fmtN(x.depr)}</td>`).join('')}<td>${fmtN(sum('depr'))}</td></tr>
-            </tbody>
-            <tfoot>
-              ${nominal
-                ? `<tr><td><b>Total nominal (sin Capex)</b></td>${years.map(_ => `<td></td>`).join('')}<td><b>${fmtN(sum('total'))}</b></td></tr>
-                   <tr><td><b>Capex inicial − Incentivo</b></td>${years.map(_ => `<td></td>`).join('')}<td><b>${fmtN(rsl.out.capex0)}</b></td></tr>
-                   <tr><td><b>Total nominal + Capex</b></td>${years.map(_ => `<td></td>`).join('')}<td><b>${fmtN(sum('total') + rsl.out.capex0)}</b></td></tr>
-                   <tr><td><b>CLP/km (de EAC)</b></td>${years.map(_ => `<td></td>`).join('')}<td><b>${fmt2(rsl.out.lco)}</b></td></tr>`
-                : `<tr><td><b>NPV (sin Capex)</b></td>${years.map(_ => `<td></td>`).join('')}<td><b>${fmtN(sum('total'))}</b></td></tr>
-                   <tr><td><b>Capex inicial − Incentivo</b></td>${years.map(_ => `<td></td>`).join('')}<td><b>${fmtN(rsl.out.capex0)}</b></td></tr>
-                   <tr><td><b>NPV total</b></td>${years.map(_ => `<td></td>`).join('')}<td><b>${fmtN(rsl.out.npv)}</b></td></tr>
-                   <tr><td><b>CLP/km</b></td>${years.map(_ => `<td></td>`).join('')}<td><b>${fmt2(rsl.out.lco)}</b></td></tr>`
-              }
-            </tfoot>
-          </table>
-        `;
-        
-        tablesContainer.appendChild(tbl);
-      });
-    } catch (e) {
-      console.error('Error rendering tables:', e);
-    }
-  }
-
-  /* Share functionality */
-  function shareScenario() {
-    try {
-      const inp = makeInputs();
-      const params = new URLSearchParams();
-      
-      Object.entries(inp).forEach(([k, v]) => {
-        params.set(k, String(v));
-      });
-      
-      params.set('veh', state.vehicles.map(v => `${v.type}:${v.modelKey}`).join('|'));
-      
-      const url = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
-      
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(url).then(() => {
-          showMessage('Link copiado al portapapeles.', 'success');
-        }).catch(() => {
-          fallbackCopyToClipboard(url);
-        });
-      } else {
-        fallbackCopyToClipboard(url);
-      }
-    } catch (e) {
-      console.error('Error sharing scenario:', e);
-      showMessage('Error al compartir escenario.', 'error');
-    }
-  }
-
-  function fallbackCopyToClipboard(text) {
-    const textArea = document.createElement('textarea');
-    textArea.value = text;
-    textArea.style.position = 'fixed';
-    textArea.style.left = '-999999px';
-    textArea.style.top = '-999999px';
-    document.body.appendChild(textArea);
-    textArea.focus();
-    textArea.select();
-    
-    try {
-      document.execCommand('copy');
-      showMessage('Link copiado al portapapeles.', 'success');
-    } catch (err) {
-      showMessage('No se pudo copiar el link. Por favor cópialo manualmente de la URL.', 'error');
-    }
-    
-    document.body.removeChild(textArea);
-  }
-
-  /* Modal handling */
-  function setupModals() {
-    const helpBtn = $('help');
-    const shareBtn = $('shareUrl');
-    const openHowBtn = $('openHow');
-
-    if (helpBtn) {
-      helpBtn.addEventListener('click', () => {
-        const modal = $('modalHelp');
-        if (modal) modal.classList.add('show');
-      });
-    }
-
-    if (shareBtn) {
-      shareBtn.addEventListener('click', shareScenario);
-    }
-
-    if (openHowBtn) {
-      openHowBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        const modal = $('modalHow');
-        if (modal) modal.classList.add('show');
-      });
-    }
-
-    // Close buttons
-    document.querySelectorAll('.closex').forEach(x => {
-      x.addEventListener('click', () => {
-        const modalId = x.getAttribute('data-x');
-        const modal = $(modalId);
-        if (modal) modal.classList.remove('show');
-      });
+  syncLabels();
+  if(qs.get('veh')){
+    const spec = qs.get('veh').split('|').slice(0,4);
+    spec.forEach(s=>{
+      const [type,modelKey]=s.split(':');
+      if(type==='EV'||type==='ICE') addVehicle(type, modelKey);
     });
-
-    // ESC key handling
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        document.querySelectorAll('.modal').forEach(m => m.classList.remove('show'));
-      }
-    });
-
-    // Click outside modal
-    document.querySelectorAll('.modal').forEach(modal => {
-      modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-          modal.classList.remove('show');
-        }
-      });
-    });
+  }else{
+    addVehicle('EV','byd_dolphin_mini');
+    addVehicle('ICE','suzuki_swift');
   }
-
-  /* Button event handlers */
-  function setupButtons() {
-    const calcBtn = $('calcHeader');
-    const addEVBtn = $('addEV');
-    const addICEBtn = $('addICE');
-    const toggleNominal = $('toggleNominal');
-
-    if (calcBtn) {
-      calcBtn.addEventListener('click', calc);
-    }
-
-    if (addEVBtn) {
-      addEVBtn.addEventListener('click', () => addVehicle('EV'));
-    }
-
-    if (addICEBtn) {
-      addICEBtn.addEventListener('click', () => addVehicle('ICE'));
-    }
-
-    if (toggleNominal) {
-      toggleNominal.addEventListener('change', () => {
-        if (state.lastResults && state.lastResults.length > 0) {
-          renderTables(state.lastResults);
-        }
-      });
-    }
-  }
-
-  /* Initialization */
-  function initializeApp() {
-    try {
-      // Set defaults
-      Object.entries(defaults).forEach(([k, v]) => {
-        const el = $(k);
-        if (el) {
-          if (typeof v === 'boolean') {
-            el.checked = v;
-          } else {
-            el.value = v;
-          }
-        }
-      });
-
-      // URL parameter override
-      for (const [k, v] of qs.entries()) {
-        if (k === 'veh') continue;
-        
-        const el = $(k);
-        if (el) {
-          if (el.type === 'checkbox') {
-            el.checked = (v === 'true' || v === '1');
-          } else {
-            const numVal = /^\d+(\.\d+)?$/.test(v) ? Number(v) : v;
-            el.value = numVal;
-          }
-        }
-      }
-
-      // Sync initial labels
-      syncLabels();
-
-      // Setup event listeners
-      addEventListeners();
-      setupButtons();
-      setupModals();
-
-      // Load vehicles from URL or defaults
-      const vehParam = qs.get('veh');
-      if (vehParam) {
-        const specs = vehParam.split('|').slice(0, 4);
-        specs.forEach(s => {
-          const [type, modelKey] = s.split(':');
-          if (type === 'EV' || type === 'ICE') {
-            addVehicle(type, modelKey);
-          }
-        });
-      } else {
-        // Default vehicles
-        addVehicle('EV', 'byd_dolphin_mini');
-        addVehicle('ICE', 'suzuki_swift');
-      }
-
-      showMessage('Aplicación cargada correctamente.', 'success');
-      
-    } catch (e) {
-      console.error('Error initializing app:', e);
-      showMessage('Error al inicializar la aplicación.', 'error');
-    }
-  }
-
-  // Initialize when DOM is ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeApp);
-  } else {
-    initializeApp();
-  }
-
+  // Si quieres cálculo automático al cargar, descomenta:
+  // calc();
 })();
 </script>
 </body>
