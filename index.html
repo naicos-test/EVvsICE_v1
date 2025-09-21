@@ -4,7 +4,7 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>EV vs ICE — Comparador TCO/NPV</title>
-<link rel="icon" href="Logo_v1.svg"/>
+<link rel="icon" href="Logo_1.svg"/>
 <style>
 /* ───────────────── THEME (claro, minimal, acento índigo) ───────────────── */
 :root{
@@ -124,8 +124,8 @@ input[type="range"]::-moz-range-thumb{width:var(--range-thumb); height:var(--ran
 <div class="header">
   <div class="header-inner">
     <div class="brand">
-      <img src="Logo_v1.svg" alt="logo" style="width:26px;height:26px">
-      <h1>EV vs ICE — Comparador TCO/NPV v1.1</h1>
+      <img src="Logo_1.svg" alt="logo" style="width:26px;height:26px">
+      <h1>EV vs ICE — Comparador TCO/NPV</h1>
     </div>
     <div class="kpis">
       <div class="kpi"><small>Ganador</small><b id="hdr_winner">—</b></div>
@@ -136,7 +136,6 @@ input[type="range"]::-moz-range-thumb{width:var(--range-thumb); height:var(--ran
     <div class="actions">
       <button class="btn ghost" id="help">Ayuda</button>
       <button class="btn ghost" id="shareUrl">Compartir escenario</button>
-      <!-- Botón Calcular movido al header -->
       <button class="btn" id="calcHeader">Calcular</button>
     </div>
   </div>
@@ -327,7 +326,7 @@ input[type="range"]::-moz-range-thumb{width:var(--range-thumb); height:var(--ran
           <button class="btn" id="addEV">+ Añadir EV</button>
           <button class="btn alt" id="addICE">+ Añadir ICE</button>
         </div>
-        <p class="small">Los modelos <b>Personalizado</b> usan tus controles globales (precio/consumo). Los demás cargan parámetros recomendados y siempre puedes ajustar tarifas, mantenciones y riesgos globales.</p>
+        <p class="small">Los modelos <b>Personalizado</b> usan tus controles globales. Los demás cargan parámetros sugeridos; puedes ajustar tarifas, mantenciones y riesgos globales.</p>
       </div>
     </div>
 
@@ -338,17 +337,14 @@ input[type="range"]::-moz-range-thumb{width:var(--range-thumb); height:var(--ran
         <small><a href="#" id="openHow">¿Cómo calculamos?</a></small>
       </div>
 
-      <!-- Costo normalizado por vehículo -->
       <div id="normCosts" class="section"></div>
 
-      <!-- Gráfico líneas acumuladas VP -->
       <div class="section">
         <h2>Costos acumulados (valor presente)</h2>
         <canvas id="lines" height="320"></canvas>
         <p class="small" id="crossnote">Intersección: —</p>
       </div>
 
-      <!-- Categorías con sparklines -->
       <div class="section">
         <div class="tabs" id="vehTabs"></div>
         <div class="catgrid">
@@ -359,7 +355,6 @@ input[type="range"]::-moz-range-thumb{width:var(--range-thumb); height:var(--ran
         </div>
       </div>
 
-      <!-- Tornado -->
       <div class="section">
         <h2>Tornado (sensibilidades sobre ΔNPV)</h2>
         <canvas id="tornado" height="320"></canvas>
@@ -367,7 +362,6 @@ input[type="range"]::-moz-range-thumb{width:var(--range-thumb); height:var(--ran
     </div>
   </div>
 
-  <!-- ───────────────── Tablas por año ───────────────── -->
   <div class="card section">
     <div style="display:flex;justify-content:space-between;align-items:center">
       <h2>Detalle por año</h2>
@@ -382,11 +376,11 @@ input[type="range"]::-moz-range-thumb{width:var(--range-thumb); height:var(--ran
   <div class="panel">
     <span class="closex" data-x="modalHow">✕</span>
     <h3>¿Cómo calculamos?</h3>
-    <p>Usamos NPV del costo total en un horizonte <b>H</b> con tasa de descuento <b>r</b>. OPEX del año <i>t</i> (energía + mantención + seguros + permisos + eventos) se descuenta a valor presente con <i>(1+r)<sup>t</sup></i>. El NPV resta el valor presente del residual al final del horizonte.</p>
+    <p>Usamos NPV del costo total en un horizonte <b>H</b> con tasa de descuento <b>r</b>. OPEX del año <i>t</i> (energía + mantención + seguros + permisos + eventos) se descuenta con <i>(1+r)<sup>t</sup></i>. El NPV resta el VP del residual al final del horizonte.</p>
     <ul class="small">
-      <li><b>Energía EV:</b> consumo (kWh/100 km) × km/año × mezcla hogar–pública. Hogar puede ser tarifa <i>plana</i> o <i>TOU</i> (valle/punta).</li>
+      <li><b>Energía EV:</b> consumo (kWh/100 km) × km/año × mezcla hogar–pública. Hogar: plana o TOU (valle/punta).</li>
       <li><b>Energía ICE:</b> consumo (L/100 km) × km/año × precio de combustible.</li>
-      <li><b>Eventos:</b> provisión de batería EV en año 8 si está activado; “bump” de mantención ICE desde año 6.</li>
+      <li><b>Eventos:</b> provisión de batería EV en año 8 si activa; “bump” ICE desde año 6.</li>
       <li><b>Indicadores:</b> EAC (costo anual equivalente), CLP/km = EAC / km.</li>
     </ul>
   </div>
@@ -398,10 +392,9 @@ input[type="range"]::-moz-range-thumb{width:var(--range-thumb); height:var(--ran
     <h3>Ayuda (contexto Chile)</h3>
     <ul class="small">
       <li><b>Tarifa hogar (plana):</b> ~CLP 110–220/kWh (según plan y comuna).</li>
-      <li><b>Hogar TOU:</b> valle puede ser ~CLP 90–160/kWh y punta ~CLP 220–380/kWh. Programar carga nocturna reduce costo promedio.</li>
+      <li><b>Hogar TOU:</b> valle ~CLP 90–160/kWh; punta ~CLP 220–380/kWh.</li>
       <li><b>Pública:</b> rápida ~CLP 300–500/kWh; normal ~CLP 200–350/kWh.</li>
-      <li><b>Instalación domiciliaria:</b> desde CLP 300.000–1.000.000 (wallbox + mano de obra; varía por empalme y distancia).</li>
-      <li>Estos rangos son referenciales; verifica con tu distribuidora/red local.</li>
+      <li><b>Instalación domiciliaria:</b> aprox. CLP 300.000–1.000.000 (wallbox + instalación; varía por empalme y distancia).</li>
     </ul>
   </div>
 </div>
@@ -414,8 +407,9 @@ const fmtN = (n,d=0)=> n.toLocaleString('es-CL',{maximumFractionDigits:d});
 const fmt2 = (n)=> n.toLocaleString('es-CL',{maximumFractionDigits:2});
 const $ = (id)=> document.getElementById(id);
 const qs = new URLSearchParams(location.search);
+function getCSS(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
 
-/* Defaults + estado */
+/* Estado global (¡sin redeclaraciones!) */
 const defaults = {
   km:15000, r:12, H:8, mix_home:70,
   kwh100:15, tarifa_mode:'flat', p_kwh_home:200, p_kwh_valle:140, p_kwh_punta:280, share_valle:70,
@@ -424,7 +418,9 @@ const defaults = {
   precio_ev:19000000, inc_ev:0, precio_ice:13000000, res_ev:40, res_ice:35,
   chg_batt:true, batt_kwh:38, batt_cost:100000, ice_bump:150000
 };
-const state = { vehicles: [] }; // {id,type:'EV'|'ICE', modelKey}
+const state = { vehicles: [] };     // {id,type:'EV'|'ICE', modelKey}
+let tornadoChart=null, linesChart=null, catCharts={}, tabsActive=null;
+let lastResults=[];
 
 /* Modelos */
 const evModels = [
@@ -449,7 +445,7 @@ const iceModels = [
 function modelList(type){return type==='EV'?evModels:iceModels;}
 function findModel(type,key){return modelList(type).find(m=>m.key===key)||modelList(type)[0];}
 
-/* UI labels */
+/* Sync labels */
 ['km','r','H','mix_home','kwh100','p_kwh_home','p_kwh_valle','p_kwh_punta','share_valle','p_kwh_pub','l100','p_fuel',
  'mant_ev','mant_ice','seg_ev','seg_ice','pat_ev','pat_ice',
  'precio_ev','inc_ev','precio_ice','res_ev','res_ice','batt_kwh','batt_cost','ice_bump','tarifa_mode'
@@ -459,37 +455,37 @@ $('escenario').addEventListener('change', ()=>{
   if(v!=='custom'){ $('H').value=map[v].H; $('r').value=map[v].r; syncLabels(); }
 });
 function syncLabels(){
-  $('km_v') && ($('km_v').textContent=fmtN(+$('km').value));
-  $('r_v') && ($('r_v').textContent=+$('r').value);
-  $('H_v') && ($('H_v').textContent=+$('H').value);
-  $('mix_home_v') && ($('mix_home_v').textContent=+$('mix_home').value);
+  if($('km_v')) $('km_v').textContent=fmtN(+$('km').value);
+  if($('r_v')) $('r_v').textContent=+$('r').value;
+  if($('H_v')) $('H_v').textContent=+$('H').value;
+  if($('mix_home_v')) $('mix_home_v').textContent=+$('mix_home').value;
 
-  $('kwh100_v') && ($('kwh100_v').textContent=(+$('kwh100').value).toFixed(1));
-  $('p_kwh_home_v') && ($('p_kwh_home_v').textContent=fmtN(+$('p_kwh_home').value));
-  $('p_kwh_valle_v') && ($('p_kwh_valle_v').textContent=fmtN(+$('p_kwh_valle').value));
-  $('p_kwh_punta_v') && ($('p_kwh_punta_v').textContent=fmtN(+$('p_kwh_punta').value));
-  $('share_valle_v') && ($('share_valle_v').textContent=fmtN(+$('share_valle').value));
-  $('p_kwh_pub_v') && ($('p_kwh_pub_v').textContent=fmtN(+$('p_kwh_pub').value));
+  if($('kwh100_v')) $('kwh100_v').textContent=(+$('kwh100').value).toFixed(1);
+  if($('p_kwh_home_v')) $('p_kwh_home_v').textContent=fmtN(+$('p_kwh_home').value);
+  if($('p_kwh_valle_v')) $('p_kwh_valle_v').textContent=fmtN(+$('p_kwh_valle').value);
+  if($('p_kwh_punta_v')) $('p_kwh_punta_v').textContent=fmtN(+$('p_kwh_punta').value);
+  if($('share_valle_v')) $('share_valle_v').textContent=fmtN(+$('share_valle').value);
+  if($('p_kwh_pub_v')) $('p_kwh_pub_v').textContent=fmtN(+$('p_kwh_pub').value);
 
-  $('l100_v') && ($('l100_v').textContent=(+$('l100').value).toFixed(1));
-  $('p_fuel_v') && ($('p_fuel_v').textContent=fmtN(+$('p_fuel').value));
+  if($('l100_v')) $('l100_v').textContent=(+$('l100').value).toFixed(1);
+  if($('p_fuel_v')) $('p_fuel_v').textContent=fmtN(+$('p_fuel').value);
 
-  $('mant_ev_v') && ($('mant_ev_v').textContent=fmtN(+$('mant_ev').value));
-  $('mant_ice_v') && ($('mant_ice_v').textContent=fmtN(+$('mant_ice').value));
-  $('seg_ev_v') && ($('seg_ev_v').textContent=fmtN(+$('seg_ev').value));
-  $('seg_ice_v') && ($('seg_ice_v').textContent=fmtN(+$('seg_ice').value));
-  $('pat_ev_v') && ($('pat_ev_v').textContent=fmtN(+$('pat_ev').value));
-  $('pat_ice_v') && ($('pat_ice_v').textContent=fmtN(+$('pat_ice').value));
+  if($('mant_ev_v')) $('mant_ev_v').textContent=fmtN(+$('mant_ev').value);
+  if($('mant_ice_v')) $('mant_ice_v').textContent=fmtN(+$('mant_ice').value);
+  if($('seg_ev_v')) $('seg_ev_v').textContent=fmtN(+$('seg_ev').value);
+  if($('seg_ice_v')) $('seg_ice_v').textContent=fmtN(+$('seg_ice').value);
+  if($('pat_ev_v')) $('pat_ev_v').textContent=fmtN(+$('pat_ev').value);
+  if($('pat_ice_v')) $('pat_ice_v').textContent=fmtN(+$('pat_ice').value);
 
-  $('precio_ev_v') && ($('precio_ev_v').textContent=fmtN(+$('precio_ev').value));
-  $('inc_ev_v') && ($('inc_ev_v').textContent=fmtN(+$('inc_ev').value));
-  $('precio_ice_v') && ($('precio_ice_v').textContent=fmtN(+$('precio_ice').value));
-  $('res_ev_v') && ($('res_ev_v').textContent=fmtN(+$('res_ev').value));
-  $('res_ice_v') && ($('res_ice_v').textContent=fmtN(+$('res_ice').value));
+  if($('precio_ev_v')) $('precio_ev_v').textContent=fmtN(+$('precio_ev').value);
+  if($('inc_ev_v')) $('inc_ev_v').textContent=fmtN(+$('inc_ev').value);
+  if($('precio_ice_v')) $('precio_ice_v').textContent=fmtN(+$('precio_ice').value);
+  if($('res_ev_v')) $('res_ev_v').textContent=fmtN(+$('res_ev').value);
+  if($('res_ice_v')) $('res_ice_v').textContent=fmtN(+$('res_ice').value);
 
-  $('batt_kwh_v') && ($('batt_kwh_v').textContent=(+$('batt_kwh').value).toFixed(1));
-  $('batt_cost_v') && ($('batt_cost_v').textContent=fmtN(+$('batt_cost').value));
-  $('ice_bump_v') && ($('ice_bump_v').textContent=fmtN(+$('ice_bump').value));
+  if($('batt_kwh_v')) $('batt_kwh_v').textContent=(+$('batt_kwh').value).toFixed(1);
+  if($('batt_cost_v')) $('batt_cost_v').textContent=fmtN(+$('batt_cost').value);
+  if($('ice_bump_v')) $('ice_bump_v').textContent=fmtN(+$('ice_bump').value);
 
   const mode=$('tarifa_mode').value;
   $('p_home_flat_wrap').style.display=(mode==='flat')?'block':'none';
@@ -509,7 +505,7 @@ function energiaICE(km,l100,p_fuel){ return (km/100)*l100*p_fuel; }
 
 /* Inputs */
 function makeInputs(){
-  const o={
+  return {
     H:+$('H').value, r:+$('r').value, km:+$('km').value, mix_home:+$('mix_home').value,
     kwh100:+$('kwh100').value, tarifa_mode:$('tarifa_mode').value,
     p_kwh_home:+$('p_kwh_home').value, p_kwh_valle:+$('p_kwh_valle').value, p_kwh_punta:+$('p_kwh_punta').value, share_valle:+$('share_valle').value,
@@ -518,10 +514,9 @@ function makeInputs(){
     precio_ev:+$('precio_ev').value, inc_ev:+$('inc_ev').value, precio_ice:+$('precio_ice').value, res_ev:+$('res_ev').value, res_ice:+$('res_ice').value,
     chg_batt:$('chg_batt').checked, batt_kwh:+$('batt_kwh').value, batt_cost:+$('batt_cost').value, ice_bump:+$('ice_bump').value
   };
-  return o;
 }
 
-/* NPV por opción (con VP y Nominal por categoría) */
+/* NPV por opción con VP y Nominal */
 function npvOption({H,r,km,precio,incentivo,mant,seguro,patentes,energia_fn,residual_pct,add_costs=[], type}){
   const rr=r/100; const capex0=precio-incentivo; const residual=precio*(residual_pct/100);
   let npv=capex0; let cumVP=[], acc=capex0;
@@ -532,7 +527,6 @@ function npvOption({H,r,km,precio,incentivo,mant,seguro,patentes,energia_fn,resi
     const energy_nom = energia_fn();
     const event_nom  = add_costs.filter(c=>c.year===t).reduce((a,c)=>a+c.amount,0);
     const opex_nom = energy_nom + mant + seguro + patentes + event_nom;
-
     const disc = Math.pow(1+rr,t);
     const vp = opex_nom / disc;
 
@@ -542,7 +536,7 @@ function npvOption({H,r,km,precio,incentivo,mant,seguro,patentes,energia_fn,resi
     byCatNom.mant.push(mant);
     byCatNom.segs.push(seguro+patentes);
     byCatNom.events.push(event_nom);
-    byCatNom.depr.push(0);                 // se registra en último año
+    byCatNom.depr.push(0);
 
     byCatVP.energy.push(energy_nom/disc);
     byCatVP.mant.push(mant/disc);
@@ -554,8 +548,8 @@ function npvOption({H,r,km,precio,incentivo,mant,seguro,patentes,energia_fn,resi
   npv -= vpResidual;
   cumVP[cumVP.length-1] -= vpResidual;
 
-  byCatVP.depr[H-1] = -vpResidual; // ajuste VP
-  byCatNom.depr[H-1] = -residual;  // ajuste nominal
+  byCatVP.depr[H-1] = -vpResidual;
+  byCatNom.depr[H-1] = -residual;
 
   const eac = npv * (rr/(1-Math.pow(1+rr,-H)));
   const lco = eac / km;
@@ -609,7 +603,6 @@ function renderVehList(){
     `;
     box.appendChild(el);
   });
-  // wire events
   box.querySelectorAll('[data-kill]').forEach(b=> b.onclick=()=> removeVehicle(b.getAttribute('data-kill')));
   box.querySelectorAll('[data-type]').forEach(s=> s.onchange=(e)=>{
     const id=e.target.getAttribute('data-type'); const v=state.vehicles.find(x=>x.id===id);
@@ -621,21 +614,20 @@ function renderVehList(){
   });
 }
 
-/* Calcular multi */
-let tornadoChart=null, linesChart=null, catCharts={};
+/* Cálculo principal */
 function calc(){
   const inp = makeInputs();
   const results=[];
   state.vehicles.forEach((v)=>{
     const mod = findModel(v.type, v.modelKey);
-    let precio, residual_pct, energia_fn, mant, seguro, patentes, add_costs;
+    let precio,residual_pct,energia_fn,mant,seguro,patentes;
     if(v.type==='EV'){
       precio = mod.custom? inp.precio_ev : mod.price;
       residual_pct = mod.custom? inp.res_ev : (mod.residual ?? inp.res_ev);
       const kwh100 = mod.custom? inp.kwh100 : (mod.kwh100 ?? inp.kwh100);
-      if(mod.batt_kwh && !mod.custom) inp.batt_kwh = mod.batt_kwh; // sincroniza para evento batería
-      energia_fn = ()=> energiaEV(inp.km, kwh100, inp.tarifa_mode, inp.p_kwh_home, inp.p_kwh_valle, inp.p_kwh_punta, inp.share_valle, inp.p_kwh_pub, inp.mix_home);
-      mant = inp.mant_ev; seguro = inp.seg_ev; patentes = inp.pat_ev;
+      if(mod.batt_kwh && !mod.custom) inp.batt_kwh = mod.batt_kwh; // actualizar evento batería
+      energia_fn = ()=> energiaEV(inp.km,kwh100,inp.tarifa_mode,inp.p_kwh_home,inp.p_kwh_valle,inp.p_kwh_punta,inp.share_valle,inp.p_kwh_pub,inp.mix_home);
+      mant=inp.mant_ev; seguro=inp.seg_ev; patentes=inp.pat_ev;
       results.push({id:v.id, label:`EV — ${mod.name}`, type:'EV',
         out: npvOption({H:inp.H,r:inp.r,km:inp.km,precio,incentivo:inp.inc_ev,mant,seguro,patentes,energia_fn,residual_pct,add_costs:buildAddCosts(inp,'EV')})});
     }else{
@@ -643,7 +635,7 @@ function calc(){
       residual_pct = mod.custom? inp.res_ice : (mod.residual ?? inp.res_ice);
       const l100 = mod.custom? inp.l100 : (mod.l100 ?? inp.l100);
       energia_fn = ()=> energiaICE(inp.km,l100,inp.p_fuel);
-      mant = inp.mant_ice; seguro = inp.seg_ice; patentes = inp.pat_ice;
+      mant=inp.mant_ice; seguro=inp.seg_ice; patentes=inp.pat_ice;
       results.push({id:v.id, label:`ICE — ${mod.name}`, type:'ICE',
         out: npvOption({H:inp.H,r:inp.r,km:inp.km,precio,incentivo:0,mant,seguro,patentes,energia_fn,residual_pct,add_costs:buildAddCosts(inp,'ICE')})});
     }
@@ -651,10 +643,11 @@ function calc(){
 
   if(results.length===0){ alert('Agrega al menos un EV y un ICE.'); return; }
 
-  // ranking por NPV
-  results.sort((a,b)=> a.out.npv - b.out.npv);
-  const win = results[0];
-  const second = results[1] || null;
+  // cache resultados para el toggle VP/Nominal
+  lastResults = results.slice().sort((a,b)=> a.out.npv - b.out.npv);
+
+  const win = lastResults[0];
+  const second = lastResults[1] || null;
 
   // Header KPIs
   $('hdr_winner').textContent = win.label;
@@ -663,7 +656,7 @@ function calc(){
   $('hdr_sav').textContent   = second ? `CLP ${fmtN(second.out.eac - win.out.eac)}/año` : '—';
 
   // Costo normalizado por vehículo
-  const rows = results.map(r=>({label:r.label, lco:r.out.lco, npv:r.out.npv, eac:r.out.eac}));
+  const rows = lastResults.map(r=>({label:r.label, lco:r.out.lco, npv:r.out.npv, eac:r.out.eac}));
   const bestLCO = win.out.lco;
   $('normCosts').innerHTML = `
     <div class="kpi-grid">
@@ -684,14 +677,14 @@ function calc(){
   linesChart = new Chart($('lines').getContext('2d'), {
     type:'line',
     data:{ labels: years.map(y=>'Año '+y),
-      datasets: results.map((r,i)=>({label:r.label, data:r.out.cumVP, tension:.1, pointRadius:2, borderWidth:2}))
+      datasets: lastResults.map((r)=>({label:r.label, data:r.out.cumVP, tension:.1, pointRadius:2, borderWidth:2}))
     },
     options:{ responsive:true, scales:{ y:{title:{display:true,text:'Costo acumulado (CLP, VP)'}}}, plugins:{legend:{position:'bottom'}} }
   });
   // Intersección aprox (ganador vs resto)
   let earliest = null;
-  for(let k=1;k<results.length;k++){
-    const a = win.out.cumVP, b = results[k].out.cumVP;
+  for(let k=1;k<lastResults.length;k++){
+    const a = win.out.cumVP, b = lastResults[k].out.cumVP;
     for(let i=1;i<years.length;i++){
       const prev = a[i-1]-b[i-1], cur = a[i]-b[i];
       if((prev<=0&&cur>=0)||(prev>=0&&cur<=0)){
@@ -705,19 +698,18 @@ function calc(){
   $('crossnote').textContent = 'Intersección: ' + (earliest ? `≈ Año ${earliest.toFixed(2)}` : '—');
 
   // Tabs + sparklines
-  renderTabs(results);
-  renderCategorySparklines(results, (tabsActive || results[0].id));
+  renderTabs(lastResults);
+  renderCategorySparklines(lastResults, (tabsActive || lastResults[0].id));
 
   // Tornado simple (1° vs 2°)
-  const baseDelta = results[1]? (results[0].out.npv - results[1].out.npv) : 0;
+  const baseDelta = lastResults[1]? (lastResults[0].out.npv - lastResults[1].out.npv) : 0;
   renderTornado(makeInputs(), baseDelta);
 
-  // Tablas (VP / Nominal según toggle)
-  renderTables(results);
+  // Tablas
+  renderTables(lastResults);
 }
 
 /* Tabs + Sparklines */
-let tabsActive = null, catCharts={};
 function renderTabs(results){
   const bar=$('vehTabs'); bar.innerHTML='';
   results.forEach((r,i)=>{
@@ -733,7 +725,7 @@ function renderCategorySparklines(results, id){
   const r = results.find(x=>x.id===id) || results[0];
   const H = makeInputs().H;
   const years = Array.from({length:H}, (_,i)=> ''+(i+1));
-  const cats = r.out.byCatVP; // VP en sparklines (más útil para cruce)
+  const cats = r.out.byCatVP; // VP en sparklines
   const cfg=(ctx,data)=> new Chart(ctx,{type:'line',data:{labels:years,datasets:[{data, tension:.3, pointRadius:0, borderWidth:2}]},options:{plugins:{legend:{display:false}}, scales:{x:{display:false},y:{display:false}}}});
   ['energy','mant','segs','depr'].forEach(k=>{ if(catCharts[k]) catCharts[k].destroy(); });
   catCharts.energy = cfg($('cat_energy').getContext('2d'), cats.energy);
@@ -779,7 +771,6 @@ function renderTornado(inp, baseDelta){
   });
 }
 function simulatePair(inp, tweak){
-  // usar top-2 de una simulación rápida (EV e ICE personalizados si no hay suficientes vehículos)
   const list = state.vehicles.length>=2 ? state.vehicles.slice(0,2).map(v=>({type:v.type, mod:findModel(v.type,v.modelKey)}))
                                         : [{type:'EV',mod:{custom:true}}, {type:'ICE',mod:{custom:true}}];
   const res = list.map(x=> computeSingle(inp, x.type, x.mod, tweak));
@@ -819,7 +810,7 @@ function renderTables(results){
       const mant   = by.mant[i];
       const segs   = by.segs[i];
       const events = by.events[i];
-      const depr   = by.depr[i]; // negativa en último año (ajuste residual)
+      const depr   = by.depr[i];
       const total  = energy+mant+segs+events+depr;
       return {y, energy, mant, segs, events, depr, total};
     });
@@ -858,7 +849,7 @@ function renderTables(results){
   });
 }
 
-/* Share, ayuda y cómo calculamos */
+/* Share, ayuda, cómo calculamos */
 $('shareUrl').addEventListener('click', ()=>{
   const inp=makeInputs();
   const params=new URLSearchParams();
@@ -872,27 +863,23 @@ $('openHow').onclick=(e)=>{ e.preventDefault(); $('modalHow').classList.add('sho
 document.querySelectorAll('.closex').forEach(x=> x.onclick=()=> $(x.getAttribute('data-x')).classList.remove('show'));
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ document.querySelectorAll('.modal').forEach(m=>m.classList.remove('show')); }});
 
-/* Botón Calcular en header (fix principal) */
+/* Botón Calcular en header */
 $('calcHeader').addEventListener('click', calc);
-/* Recalcular al cambiar modo de tabla */
-$('toggleNominal').addEventListener('change', ()=> { /* si ya hay resultados, re-pinta tablas */ renderTables(lastResultsCache||[]); });
+/* Toggle VP/Nominal repinta tablas con últimos resultados */
+$('toggleNominal').addEventListener('change', ()=> { if(lastResults.length) renderTables(lastResults); });
 
-/* Add vehicles */
+/* Añadir vehículos */
 $('addEV').onclick=()=> addVehicle('EV');
 $('addICE').onclick=()=> addVehicle('ICE');
 
 /* Init */
-let lastResultsCache = null;
 (function init(){
-  // defaults
   Object.entries(defaults).forEach(([k,v])=>{ if($(k)){ if(typeof v==='boolean') $(k).checked=v; else $(k).value=v; }});
-  // URL override
   for(const [k,v] of qs.entries()){
     if(k==='veh') continue;
     if($(k)) { if($(k).type==='checkbox') $(k).checked=(v==='true'||v==='1'); else $(k).value=(/^\d+(\.\d+)?$/.test(v)? Number(v): v); }
   }
   syncLabels();
-  // Vehículos por defecto o URL
   if(qs.get('veh')){
     const spec = qs.get('veh').split('|').slice(0,4);
     spec.forEach(s=>{
@@ -903,8 +890,8 @@ let lastResultsCache = null;
     addVehicle('EV','byd_dolphin_mini');
     addVehicle('ICE','suzuki_swift');
   }
-  // primera corrida opcional
-  // calc();  // descomenta si quieres calcular automáticamente al cargar
+  // Si quieres cálculo automático al cargar, descomenta:
+  // calc();
 })();
 </script>
 </body>
