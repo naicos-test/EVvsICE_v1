@@ -3,120 +3,148 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>EV vs ICE — TCO/NPV con Sensibilidades_v1</title>
-<link rel="icon" href="logo.svg"/>
+<title>EV vs ICE — Comparador TCO/NPV</title>
+<link rel="icon" href="Logo_1.svg"/>
 <style>
-:root{--bg:#0b1220;--card:#141c2c;--ink:#e9eef7;--muted:#9fb0c9;--accent:#5dd0a6;--danger:#ff6b6b}
-*{box-sizing:border-box}
-body{margin:0;font-family:Inter,system-ui,Arial;color:var(--ink);background:linear-gradient(120deg,#0b1220,#0f1a31 55%)}
-.wrap{max-width:1200px;margin:32px auto;padding:0 16px}
-h1{font-size:26px;margin:0 0 6px}
-.subtitle{color:var(--muted);margin:0 0 16px}
-.grid{display:grid;grid-template-columns:1.25fr .75fr;gap:16px}
-.card{background:var(--card);border-radius:18px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
-.card h2{margin:0 0 8px;font-size:18px}
-.row{display:grid;grid-template-columns:1.2fr .8fr;gap:12px;margin:8px 0;align-items:center}
-.row>div{display:flex;gap:8px;align-items:center}
-label{font-size:13px;color:var(--muted)}
-input,select{width:100%;padding:8px 10px;border-radius:10px;border:1px solid #27324a;background:#0d1422;color:var(--ink)}
-.small{font-size:12px;color:var(--muted)}
-.full{grid-column:1 / -1}
-.btn{background:var(--accent);color:#072a1f;border:none;border-radius:12px;padding:10px 12px;font-weight:700;cursor:pointer}
-.btn2{background:#2f8fff;color:#07192a;border:none;border-radius:12px;padding:10px 12px;font-weight:700;cursor:pointer}
-.btn-danger{background:var(--danger);color:#2a0707}
-.actions{display:flex;gap:8px;flex-wrap:wrap}
-.result{font-size:14px;line-height:1.5}
-.winner{font-weight:700;color:var(--accent)}
-.muted{color:var(--muted)}
-.mono{font-family:ui-monospace,Menlo,Consolas,monospace}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.hdr{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:8px}
-.kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:8px}
-.pill{background:#0d1422;border:1px solid #27324a;border-radius:12px;padding:8px 10px}
-.section{margin-top:16px}
-.link{color:#8ec6ff;text-decoration:none}
-@media(max-width:1100px){.grid{grid-template-columns:1fr}.kpi{grid-template-columns:1fr}}
-canvas{background:#0d1422;border:1px solid #27324a;border-radius:12px;padding:8px}
-
-  /* ─── Sliders compactos (≈ mitad de alto) ────────────────────────────── */
+/* ───────────────── THEME (claro, minimal, acento índigo) ───────────────── */
 :root{
-  --range-track-h: 4px;   /* alto de la pista */
-  --range-thumb:   12px;  /* diámetro del “thumb” (el botón) */
+  --bg:#f6f7fb;           /* fondo claro */
+  --ink:#1f2533;          /* texto principal */
+  --muted:#6b7280;        /* texto secundario */
+  --card:#ffffff;         /* tarjetas */
+  --line:#e6e8ef;         /* bordes suaves */
+  --accent:#6c7ae0;       /* índigo / violeta suave */
+  --accent-2:#0ea5e9;     /* cian para datasets extra */
+  --accent-3:#f59e0b;     /* ámbar */
+  --accent-4:#a78bfa;     /* lila */
+  --danger:#ef4444;       /* rojo */
+  --ok:#10b981;           /* verde */
+  --shadow: 0 10px 30px rgba(17,23,34,.08);
 }
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,Segoe UI,Arial}
+a{color:var(--accent);text-decoration:none}
+.wrap{max-width:1200px;margin:0 auto;padding:90px 16px 24px} /* espacio para header sticky */
 
-/* base */
-input[type="range"]{
-  -webkit-appearance: none;
-  appearance: none;
-  height: var(--range-thumb);
-  padding: 0;                 /* quita relleno vertical */
-  background: transparent;    /* usamos solo la pista y el thumb */
+/* ───────────────── Sticky Header KPIs ───────────────── */
+.header{
+  position:sticky; top:0; z-index:20; backdrop-filter: blur(6px);
+  background:rgba(246,247,251,.9); border-bottom:1px solid var(--line);
 }
+.header-inner{max-width:1200px;margin:0 auto;padding:10px 16px; display:flex; gap:12px; align-items:center; justify-content:space-between}
+.brand{display:flex; align-items:center; gap:10px}
+.brand h1{font-size:18px; margin:0}
+.kpis{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; width:100%; max-width:780px}
+.kpi{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:10px 12px; box-shadow:var(--shadow)}
+.kpi small{display:block; color:var(--muted); font-size:12px}
+.kpi b{font-size:16px}
+.actions{display:flex; gap:8px; flex-wrap:wrap}
+.btn{background:var(--accent); color:white; border:none; border-radius:10px; padding:10px 12px; font-weight:700; cursor:pointer; box-shadow:var(--shadow)}
+.btn.alt{background:#111827; color:#fff}
+.btn.ghost{background:#eef1ff; color:#2b318a}
 
-/* WebKit / Blink (Chrome, Edge, Safari) */
-input[type="range"]::-webkit-slider-runnable-track{
-  height: var(--range-track-h);
-  background: #27324a;
-  border-radius: 999px;
+/* ───────────────── Layout ───────────────── */
+.grid{display:grid; grid-template-columns:1.15fr .85fr; gap:16px}
+.card{background:var(--card); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow); padding:14px}
+.card h2{margin:0 0 8px; font-size:18px}
+.section{margin-top:16px}
+.row{display:grid; grid-template-columns:1.2fr .8fr; gap:12px; align-items:center; margin:8px 0}
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+.pill{border:1px solid var(--line); background:#fff; border-radius:12px; padding:8px 10px}
+label{color:var(--muted); font-size:12.5px}
+input,select{width:100%; padding:8px 10px; border-radius:10px; border:1px solid var(--line); background:#fff; color:var(--ink)}
+.small{color:var(--muted); font-size:12px}
+.mono{font-family:ui-monospace, Menlo, Consolas, monospace}
+hr{border:none; border-top:1px solid var(--line); margin:12px 0}
+
+/* ───────────────── Vehicle list ───────────────── */
+.vehlist{display:flex; flex-wrap:wrap; gap:10px}
+.veh{flex:1 1 260px; min-width:260px; background:#fff; border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow); padding:10px}
+.veh .top{display:flex; justify-content:space-between; align-items:center; margin-bottom:6px}
+.badge{font-size:11px; border-radius:10px; padding:3px 8px; border:1px solid var(--line); color:var(--muted)}
+.badge.ev{background:#eef8ff; color:#2563eb}
+.badge.ice{background:#fff7ed; color:#c2410c}
+.kill{border:none; background:transparent; color:#9ca3af; cursor:pointer}
+
+/* ───────────────── Results area ───────────────── */
+.kpi-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:12px}
+.result{font-size:14px; line-height:1.5}
+.winner{color:var(--ok); font-weight:800}
+
+/* ───────────────── Category cards w/ sparklines ───────────────── */
+.tabs{display:flex; gap:8px; flex-wrap:wrap; margin:6px 0 10px}
+.tab{border:1px solid var(--line); border-radius:10px; padding:6px 10px; background:#fff; cursor:pointer}
+.tab.active{background:#eef1ff; color:#2b318a; border-color:#cfd6ff}
+.catgrid{display:grid; grid-template-columns:repeat(4,1fr); gap:10px}
+.cat{background:#fff; border:1px solid var(--line); border-radius:14px; padding:8px}
+.cat h4{margin:0 0 6px; font-size:13px; color:#374151}
+.canvas-wrap{height:80px}
+
+/* ───────────────── Charts ───────────────── */
+canvas{background:#fff; border:1px solid var(--line); border-radius:12px; padding:6px}
+
+/* ───────────────── Sliders compactos ───────────────── */
+:root{ --range-track-h: 4px; --range-thumb: 12px }
+input[type="range"]{-webkit-appearance:none; appearance:none; height:var(--range-thumb); padding:0; background:transparent}
+input[type="range"]::-webkit-slider-runnable-track{height:var(--range-track-h); background:#d7dbea; border-radius:999px}
+input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none; width:var(--range-thumb); height:var(--range-thumb); border-radius:50%; background:var(--accent); border:2px solid #fff; margin-top:calc((var(--range-track-h) - var(--range-thumb))/2)}
+input[type="range"]::-moz-range-track{height:var(--range-track-h); background:#d7dbea; border-radius:999px}
+input[type="range"]::-moz-range-thumb{width:var(--range-thumb); height:var(--range-thumb); border-radius:50%; background:var(--accent); border:2px solid #fff}
+.pill{padding:6px 8px}.small{font-size:11.5px}
+
+/* ───────────────── Modals ───────────────── */
+.modal{position:fixed; inset:0; background:rgba(0,0,0,.35); display:none; align-items:center; justify-content:center; z-index:50}
+.modal.show{display:flex}
+.modal .panel{max-width:780px; width:96%; background:#fff; border-radius:16px; box-shadow:var(--shadow); padding:14px}
+.modal .panel h3{margin:0 0 8px}
+.closex{float:right; cursor:pointer; color:#9ca3af}
+
+/* ───────────────── Tables ───────────────── */
+.table{width:100%; border-collapse:collapse; font-size:13px}
+.table th,.table td{border:1px solid var(--line); padding:6px 8px; text-align:right}
+.table th:first-child,.table td:first-child{text-align:left}
+.table tfoot td{font-weight:700}
+
+/* ───────────────── Responsive ───────────────── */
+@media (max-width:1100px){
+  .grid{grid-template-columns:1fr}
+  .kpis{grid-template-columns:1fr 1fr}
+  .catgrid{grid-template-columns:1fr 1fr}
 }
-input[type="range"]::-webkit-slider-thumb{
-  -webkit-appearance: none;
-  appearance: none;
-  width: var(--range-thumb);
-  height: var(--range-thumb);
-  border-radius: 50%;
-  background: #5dd0a6;
-  border: 2px solid #0d1422;
-  margin-top: calc((var(--range-track-h) - var(--range-thumb)) / 2); /* centra el thumb */
-  cursor: pointer;
+@media (max-width:680px){
+  .kpis{grid-template-columns:1fr}
+  .catgrid{grid-template-columns:1fr}
 }
-
-/* Firefox */
-input[type="range"]::-moz-range-track{
-  height: var(--range-track-h);
-  background: #27324a;
-  border-radius: 999px;
-}
-input[type="range"]::-moz-range-thumb{
-  width: var(--range-thumb);
-  height: var(--range-thumb);
-  border-radius: 50%;
-  background: #5dd0a6;
-  border: 2px solid #0d1422;
-  cursor: pointer;
-}
-
-/* (Opcional) estados de foco/hover */
-input[type="range"]:hover::-webkit-slider-runnable-track{ background:#2e3a57; }
-input[type="range"]:hover::-moz-range-track{ background:#2e3a57; }
-input[type="range"]:focus{ outline: none; }
-
-/* (Opcional) ajusta un poco el padding de los contenedores para ganar vertical */
-.pill{ padding: 6px 8px; }         /* antes: 8px 10px */
-.small{ font-size: 11.5px; }       /* sutilmente más compacto */
-
-
-  
 </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="hdr">
-    <div>
-      <h1><img src="Logo_1.svg" alt="logo" style="width:26px;vertical-align:middle;margin-right:6px"/> EV vs ICE — Comparador económico_v1</h1>
-      <p class="subtitle">TCO/NPV con tarifas planas o TOU, sensibilidades y gráficos. <a class="link" href="ayuda.html">Ayuda</a></p>
+
+<!-- ───────────────── Sticky Header ───────────────── -->
+<div class="header">
+  <div class="header-inner">
+    <div class="brand">
+      <img src="Logo_1.svg" alt="logo" style="width:26px;height:26px">
+      <h1>EV vs ICE — Comparador TCO/NPV v1.1</h1>
+    </div>
+    <div class="kpis">
+      <div class="kpi"><small>Ganador</small><b id="hdr_winner">—</b></div>
+      <div class="kpi"><small>ΔNPV (vs. 2°)</small><b id="hdr_dnpv">—</b></div>
+      <div class="kpi"><small>CLP/km (ganador)</small><b id="hdr_lco">—</b></div>
+      <div class="kpi"><small>Ahorro anual</small><b id="hdr_sav">—</b></div>
     </div>
     <div class="actions">
-      <button class="btn2" id="shareUrl">Compartir escenario</button>
-      <button class="btn2" id="exportCsv">Exportar CSV (Excel)</button>
-      <button class="btn" id="exportPdf">Exportar PDF</button>
+      <button class="btn ghost" id="help">Ayuda</button>
+      <button class="btn" id="shareUrl">Compartir escenario</button>
     </div>
   </div>
+</div>
 
+<div class="wrap">
   <div class="grid">
-    <!-- Panel izquierdo: inputs -->
+    <!-- ───────────────── Panel izquierdo: parámetros + vehículos ───────────────── -->
     <div class="card">
-      <h2>Supuestos base</h2>
+      <h2>Parámetros globales</h2>
       <div class="row">
         <label>Escenario rápido</label>
         <div>
@@ -134,7 +162,7 @@ input[type="range"]:focus{ outline: none; }
 
       <div class="grid2">
         <div class="pill">
-          <label>Kilómetros por año</label>
+          <label>Kilómetros/año</label>
           <input id="km" type="range" min="8000" max="30000" step="500" value="15000"/>
           <div class="small"><span id="km_v">15.000</span> km/año</div>
         </div>
@@ -149,16 +177,6 @@ input[type="range"]:focus{ outline: none; }
           <div class="small"><span id="H_v">8</span> años</div>
         </div>
         <div class="pill">
-          <label>Valor residual EV (% MSRP)</label>
-          <input id="res_ev" type="range" min="20" max="55" step="1" value="40"/>
-          <div class="small"><span id="res_ev_v">40</span>%</div>
-        </div>
-        <div class="pill">
-          <label>Valor residual ICE (% MSRP)</label>
-          <input id="res_ice" type="range" min="25" max="60" step="1" value="35"/>
-          <div class="small"><span id="res_ice_v">35</span>%</div>
-        </div>
-        <div class="pill">
           <label>% carga en hogar EV</label>
           <input id="mix_home" type="range" min="0" max="100" step="1" value="70"/>
           <div class="small"><span id="mix_home_v">70</span>% (resto pública)</div>
@@ -166,12 +184,12 @@ input[type="range"]:focus{ outline: none; }
       </div>
 
       <div class="section">
-        <h2>Energía & mantención</h2>
+        <h2>Energía & precios</h2>
         <div class="grid2">
           <div class="pill">
             <label>Consumo EV (kWh/100 km)</label>
             <input id="kwh100" type="range" min="11" max="20" step="0.5" value="15"/>
-            <div class="small"><span id="kwh100_v">15.0</span> kWh/100 km</div>
+            <div class="small"><span id="kwh100_v">15.0</span> kWh/100 km (para “Personalizado”)</div>
           </div>
 
           <div class="pill">
@@ -180,7 +198,7 @@ input[type="range"]:focus{ outline: none; }
               <option value="flat" selected>Plana</option>
               <option value="tou">TOU (valle+punta)</option>
             </select>
-            <div class="small">Aplica solo a carga en hogar</div>
+            <div class="small">Aplica a carga en hogar</div>
           </div>
 
           <div class="pill" id="p_home_flat_wrap">
@@ -192,9 +210,7 @@ input[type="range"]:focus{ outline: none; }
           <div class="pill" id="p_home_tou_wrap" style="display:none">
             <label>TOU hogar: valle / punta / % valle</label>
             <div class="small">
-              <span>Valle:</span> CLP <span id="p_kwh_valle_v">140</span>,
-              <span>Punta:</span> CLP <span id="p_kwh_punta_v">280</span>,
-              <span>% valle:</span> <span id="share_valle_v">70</span>%
+              Valle: CLP <span id="p_kwh_valle_v">140</span> · Punta: CLP <span id="p_kwh_punta_v">280</span> · % valle: <span id="share_valle_v">70</span>%
             </div>
             <input id="p_kwh_valle" type="range" min="80" max="250" step="5" value="140"/>
             <input id="p_kwh_punta" type="range" min="180" max="500" step="5" value="280"/>
@@ -210,13 +226,19 @@ input[type="range"]:focus{ outline: none; }
           <div class="pill">
             <label>Consumo ICE (L/100 km)</label>
             <input id="l100" type="range" min="5" max="10" step="0.1" value="7"/>
-            <div class="small"><span id="l100_v">7.0</span> L/100 km</div>
+            <div class="small"><span id="l100_v">7.0</span> L/100 km (para “Personalizado”)</div>
           </div>
           <div class="pill">
             <label>Precio combustible (CLP/L)</label>
             <input id="p_fuel" type="range" min="900" max="1600" step="10" value="1200"/>
             <div class="small">CLP <span id="p_fuel_v">1.200</span>/L</div>
           </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Mantenciones & seguros</h2>
+        <div class="grid2">
           <div class="pill">
             <label>Mantención EV (CLP/año)</label>
             <input id="mant_ev" type="range" min="100000" max="350000" step="10000" value="200000"/>
@@ -227,15 +249,35 @@ input[type="range"]:focus{ outline: none; }
             <input id="mant_ice" type="range" min="250000" max="600000" step="10000" value="380000"/>
             <div class="small">CLP <span id="mant_ice_v">380.000</span>/año</div>
           </div>
+          <div class="pill">
+            <label>Seguro EV (CLP/año)</label>
+            <input id="seg_ev" type="range" min="300000" max="900000" step="10000" value="600000"/>
+            <div class="small">CLP <span id="seg_ev_v">600.000</span>/año</div>
+          </div>
+          <div class="pill">
+            <label>Seguro ICE (CLP/año)</label>
+            <input id="seg_ice" type="range" min="300000" max="900000" step="10000" value="500000"/>
+            <div class="small">CLP <span id="seg_ice_v">500.000</span>/año</div>
+          </div>
+          <div class="pill">
+            <label>Permisos/Patentes EV (CLP/año)</label>
+            <input id="pat_ev" type="range" min="100000" max="500000" step="10000" value="250000"/>
+            <div class="small">CLP <span id="pat_ev_v">250.000</span>/año</div>
+          </div>
+          <div class="pill">
+            <label>Permisos/Patentes ICE (CLP/año)</label>
+            <input id="pat_ice" type="range" min="100000" max="500000" step="10000" value="300000"/>
+            <div class="small">CLP <span id="pat_ice_v">300.000</span>/año</div>
+          </div>
         </div>
       </div>
 
       <div class="section">
-        <h2>Compra</h2>
+        <h2>Compra & riesgos</h2>
         <div class="grid2">
           <div class="pill">
-            <label>Precio EV (CLP)</label>
-            <input id="precio_ev" type="range" min="12000000" max="30000000" step="100000" value="19000000"/>
+            <label>Precio EV (Personalizado)</label>
+            <input id="precio_ev" type="range" min="12000000" max="40000000" step="100000" value="19000000"/>
             <div class="small">CLP <span id="precio_ev_v">19.000.000</span></div>
           </div>
           <div class="pill">
@@ -244,29 +286,29 @@ input[type="range"]:focus{ outline: none; }
             <div class="small">CLP <span id="inc_ev_v">0</span></div>
           </div>
           <div class="pill">
-            <label>Precio ICE (CLP)</label>
-            <input id="precio_ice" type="range" min="9000000" max="25000000" step="100000" value="13000000"/>
+            <label>Precio ICE (Personalizado)</label>
+            <input id="precio_ice" type="range" min="9000000" max="30000000" step="100000" value="13000000"/>
             <div class="small">CLP <span id="precio_ice_v">13.000.000</span></div>
           </div>
-        </div>
-      </div>
-
-      <div class="section">
-        <h2>Riesgos / Eventos</h2>
-        <div class="row">
-          <label>Provisión cambio batería EV (año 8)</label>
-          <div><input type="checkbox" id="chg_batt" checked/><span class="small">Costo = kWh batería × CLP/kWh</span></div>
-        </div>
-        <div class="grid2">
           <div class="pill">
-            <label>Tamaño batería EV (kWh)</label>
-            <input id="batt_kwh" type="range" min="28" max="40" step="0.5" value="38"/>
-            <div class="small"><span id="batt_kwh_v">38.0</span> kWh</div>
+            <label>Valor residual EV (% MSRP)</label>
+            <input id="res_ev" type="range" min="20" max="60" step="1" value="40"/>
+            <div class="small"><span id="res_ev_v">40</span>%</div>
           </div>
           <div class="pill">
-            <label>Costo pack (CLP/kWh)</label>
-            <input id="batt_cost" type="range" min="60000" max="150000" step="5000" value="100000"/>
-            <div class="small">CLP <span id="batt_cost_v">100.000</span>/kWh</div>
+            <label>Valor residual ICE (% MSRP)</label>
+            <input id="res_ice" type="range" min="25" max="60" step="1" value="35"/>
+            <div class="small"><span id="res_ice_v">35</span>%</div>
+          </div>
+        </div>
+
+        <div class="grid2">
+          <div class="pill">
+            <label>Provisión cambio batería EV (año 8)</label>
+            <div class="small"><input type="checkbox" id="chg_batt" checked/> Incluir · Costo = kWh × CLP/kWh</div>
+            <div class="small">Tamaño batería (kWh): <span id="batt_kwh_v">38</span> · Costo (CLP/kWh): <span id="batt_cost_v">100.000</span></div>
+            <input id="batt_kwh" type="range" min="28" max="70" step="0.5" value="38"/>
+            <input id="batt_cost" type="range" min="60000" max="200000" step="5000" value="100000"/>
           </div>
           <div class="pill">
             <label>ICE: mantención “alta” desde año 6</label>
@@ -276,394 +318,586 @@ input[type="range"]:focus{ outline: none; }
         </div>
       </div>
 
-      <div class="row full" style="margin-top:10px">
-        <button class="btn" id="calc">Calcular</button>
-        <button class="btn btn-danger" id="reset">Reset</button>
+      <div class="section">
+        <h2>Vehículos a comparar (hasta 4)</h2>
+        <div class="vehlist" id="vehList"></div>
+        <div class="actions" style="margin-top:8px">
+          <button class="btn" id="addEV">+ Añadir EV</button>
+          <button class="btn alt" id="addICE">+ Añadir ICE</button>
+          <button class="btn" id="calc">Calcular</button>
+        </div>
+        <p class="small">Los modelos <b>Personalizado</b> usan tus controles globales (precio/consumo). Los demás cargan parámetros recomendados y siempre puedes ajustar tarifas, mantenciones y riesgos globales.</p>
       </div>
-      <p class="small" style="margin-top:6px">Nota mezcla de carga: % hogar vs % pública se normaliza automáticamente.</p>
     </div>
 
-    <!-- Panel derecho: resultados y gráficos -->
-    <div class="card" id="report">
+    <!-- ───────────────── Panel derecho: resultados y gráficos ───────────────── -->
+    <div class="card">
       <h2>Resultados</h2>
-      <div class="kpi">
-        <div class="pill"><div class="small muted">Recomendación</div><div id="win" class="winner">—</div></div>
-        <div class="pill"><div class="small muted">Diferencia NPV (ganador)</div><div id="diff" class="mono">—</div></div>
-        <div class="pill"><div class="small muted">Costo por km (ganador)</div><div id="lco" class="mono">—</div></div>
-      </div>
-      <div id="out" class="result" style="margin-top:10px">
-        <p class="muted">Ajusta supuestos y presiona <b>Calcular</b>.</p>
-      </div>
 
-      <div class="section">
-        <h2>Gráfico Tornado (sensibilidades)</h2>
-        <canvas id="tornado" height="320"></canvas>
-      </div>
+      <!-- Costo normalizado por vehículo -->
+      <div id="normCosts" class="section"></div>
 
+      <!-- Gráfico líneas acumuladas VP -->
       <div class="section">
-        <h2>Costos acumulados (VP) e intersección</h2>
+        <h2>Costos acumulados (valor presente)</h2>
         <canvas id="lines" height="320"></canvas>
         <p class="small" id="crossnote">Intersección: —</p>
+      </div>
+
+      <!-- Categorías con sparklines -->
+      <div class="section">
+        <div class="tabs" id="vehTabs"></div>
+        <div class="catgrid">
+          <div class="cat"><h4>Energía</h4><div class="canvas-wrap"><canvas id="cat_energy"></canvas></div></div>
+          <div class="cat"><h4>Mantención</h4><div class="canvas-wrap"><canvas id="cat_mant"></canvas></div></div>
+          <div class="cat"><h4>Seguros/Permisos</h4><div class="canvas-wrap"><canvas id="cat_segs"></canvas></div></div>
+          <div class="cat"><h4>Depreciación/Residual</h4><div class="canvas-wrap"><canvas id="cat_depr"></canvas></div></div>
+        </div>
+      </div>
+
+      <!-- Tornado (mantengo por utilidad) -->
+      <div class="section">
+        <h2>Tornado (sensibilidades sobre ΔNPV del escenario actual)</h2>
+        <canvas id="tornado" height="320"></canvas>
       </div>
     </div>
   </div>
 
+  <!-- ───────────────── Tablas por año ───────────────── -->
   <div class="card section">
-    <h2>Notas rápidas</h2>
+    <h2>Detalle por año (valor presente)</h2>
+    <div id="tables"></div>
+  </div>
+</div>
+
+<!-- Modales -->
+<div class="modal" id="modalHow">
+  <div class="panel">
+    <span class="closex" data-x="modalHow">✕</span>
+    <h3>¿Cómo calculamos?</h3>
+    <p>Usamos NPV del costo total en un horizonte <b>H</b> con tasa de descuento <b>r</b>. OPEX del año <i>t</i> (energía + mantención + seguros + permisos + eventos) se descuenta a valor presente con <i>(1+r)<sup>t</sup></i>. El NPV resta el valor presente del residual al final del horizonte.</p>
     <ul class="small">
-      <li>EV mantención base: <b>CLP 200.000/año</b> (ajustable). ICE: <b>CLP 380.000/año</b> (ajustable).</li>
-      <li>Costo batería paramétrico (para estresar escenarios); reemplazos reales son poco frecuentes y a veces en garantía.</li>
+      <li><b>Energía EV:</b> consumo (kWh/100 km) × km/año × mezcla hogar–pública. Hogar puede ser tarifa <i>plana</i> o <i>TOU</i> (valle/punta).</li>
+      <li><b>Energía ICE:</b> consumo (L/100 km) × km/año × precio de combustible.</li>
+      <li><b>Eventos:</b> provisión de batería EV en año 8 si está activado; “bump” de mantención ICE desde año 6.</li>
+      <li><b>Indicadores:</b> EAC (costo anual equivalente), CLP/km = EAC / km.</li>
     </ul>
   </div>
 </div>
 
-<!-- Chart.js CDN -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<div class="modal" id="modalHelp">
+  <div class="panel">
+    <span class="closex" data-x="modalHelp">✕</span>
+    <h3>Ayuda (contexto Chile)</h3>
+    <ul class="small">
+      <li><b>Tarifa hogar (plana):</b> ~CLP 110–220/kWh (según plan y comuna).</li>
+      <li><b>Hogar TOU:</b> valle puede ser ~CLP 90–160/kWh y punta ~CLP 220–380/kWh. Programar carga nocturna reduce costo promedio.</li>
+      <li><b>Pública:</b> rápida ~CLP 300–500/kWh; normal ~CLP 200–350/kWh.</li>
+      <li><b>Instalación domiciliaria:</b> desde CLP 300.000–1.000.000 (wallbox + mano de obra; varía por empalme y distancia).</li>
+      <li>Estos rangos son referenciales; verifica con tu distribuidora/red local.</li>
+    </ul>
+  </div>
+</div>
 
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
-function nfmt(n,d=0){return n.toLocaleString('es-CL',{maximumFractionDigits:d});}
-function nfmt2(n){return n.toLocaleString('es-CL',{maximumFractionDigits:2});}
-function get(id){return document.getElementById(id);}
+/* ───────────── Utilidades ───────────── */
+const fmtN = (n,d=0)=> n.toLocaleString('es-CL',{maximumFractionDigits:d});
+const fmt2 = (n)=> n.toLocaleString('es-CL',{maximumFractionDigits:2});
+const $ = (id)=> document.getElementById(id);
 const qs = new URLSearchParams(location.search);
 
+const palette = [getCSS('--accent'), getCSS('--accent-2'), getCSS('--accent-3'), getCSS('--accent-4')];
+function getCSS(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+
+/* Defaults + estado */
 const defaults = {
-  km:15000, r:12, H:8, res_ev:40, res_ice:35,
-  mix_home:70,
+  km:15000, r:12, H:8, mix_home:70,
   kwh100:15, tarifa_mode:'flat', p_kwh_home:200, p_kwh_valle:140, p_kwh_punta:280, share_valle:70,
   p_kwh_pub:380, l100:7, p_fuel:1200,
-  mant_ev:200000, mant_ice:380000,
-  precio_ev:19000000, inc_ev:0, precio_ice:13000000,
+  mant_ev:200000, mant_ice:380000, seg_ev:600000, seg_ice:500000, pat_ev:250000, pat_ice:300000,
+  precio_ev:19000000, inc_ev:0, precio_ice:13000000, res_ev:40, res_ice:35,
   chg_batt:true, batt_kwh:38, batt_cost:100000, ice_bump:150000
 };
+const state = { vehicles: [] }; // {id,type:'EV'|'ICE', modelKey, custom:boolean}
 
-function setVal(id,val){
-  const el=get(id);
-  if(!el) return;
-  if(el.type==='checkbox'){ el.checked = (val===true||val==='true'||val===1||val==='1'); }
-  else{ el.value = val; }
-}
+/* Modelos (pre-cargados) */
+const evModels = [
+  {key:'custom', name:'Personalizado', custom:true},
+  {key:'byd_dolphin_mini', name:'BYD Dolphin Mini', price:19000000, kwh100:15, batt_kwh:38, residual:40},
+  {key:'mg4_std', name:'MG4 Standard', price:23990000, kwh100:16, batt_kwh:51, residual:42},
+  {key:'nissan_leaf40', name:'Nissan Leaf 40kWh', price:32000000, kwh100:18, batt_kwh:40, residual:38},
+  {key:'tesla_m3_rwd', name:'Tesla Model 3 RWD', price:36900000, kwh100:14, batt_kwh:57, residual:50},
+  {key:'byd_yuan_plus', name:'BYD Yuan Plus (Atto 3)', price:28990000, kwh100:16, batt_kwh:60, residual:45},
+  {key:'mg_zs_ev', name:'MG ZS EV', price:27990000, kwh100:18, batt_kwh:51, residual:40},
+  {key:'jac_e10x', name:'JAC E10X', price:15000000, kwh100:13, batt_kwh:31, residual:35}
+];
+const iceModels = [
+  {key:'custom', name:'Personalizado', custom:true},
+  {key:'suzuki_swift', name:'Suzuki Swift 1.2', price:13000000, l100:7.0, residual:35},
+  {key:'toyota_yaris', name:'Toyota Yaris 1.5', price:15000000, l100:6.5, residual:40},
+  {key:'chevy_onix', name:'Chevrolet Onix 1.0T', price:14500000, l100:6.7, residual:38},
+  {key:'kia_rio', name:'Kia Rio 1.4', price:14000000, l100:7.2, residual:36},
+  {key:'hyundai_accent', name:'Hyundai Accent 1.4', price:13800000, l100:7.0, residual:36},
+  {key:'peugeot_208', name:'Peugeot 208 1.6', price:15500000, l100:7.5, residual:37}
+];
+function modelList(type){return type==='EV'?evModels:iceModels;}
+function findModel(type,key){return modelList(type).find(m=>m.key===key)||modelList(type)[0];}
 
+/* UI sync labels */
+['km','r','H','mix_home','kwh100','p_kwh_home','p_kwh_valle','p_kwh_punta','share_valle','p_kwh_pub','l100','p_fuel',
+ 'mant_ev','mant_ice','seg_ev','seg_ice','pat_ev','pat_ice',
+ 'precio_ev','inc_ev','precio_ice','res_ev','res_ice','batt_kwh','batt_cost','ice_bump','tarifa_mode'
+].forEach(id=>{ const el=$(id); if(el){ el.addEventListener('input', syncLabels); }});
+$('escenario').addEventListener('change', ()=>{
+  const v=$('escenario').value, map={H3r8:{H:3,r:8},H5r8:{H:5,r:8},H8r8:{H:8,r:8},H3r12:{H:3,r:12},H5r12:{H:5,r:12},H8r12:{H:8,r:12}};
+  if(v!=='custom'){ $('H').value=map[v].H; $('r').value=map[v].r; syncLabels(); }
+});
 function syncLabels(){
-  get('km_v').textContent=nfmt(+get('km').value);
-  get('r_v').textContent=+get('r').value;
-  get('H_v').textContent=+get('H').value;
-  get('res_ev_v').textContent=+get('res_ev').value;
-  get('res_ice_v').textContent=+get('res_ice').value;
-  get('mix_home_v').textContent=+get('mix_home').value;
+  $('km_v').textContent=fmtN(+$('km').value);
+  $('r_v').textContent=+$('r').value;
+  $('H_v').textContent=+$('H').value;
+  $('mix_home_v').textContent=+$('mix_home').value;
 
-  get('kwh100_v').textContent=(+get('kwh100').value).toFixed(1);
-  get('p_kwh_home_v').textContent=nfmt(+get('p_kwh_home').value);
-  get('p_kwh_valle_v').textContent=nfmt(+get('p_kwh_valle').value);
-  get('p_kwh_punta_v').textContent=nfmt(+get('p_kwh_punta').value);
-  get('share_valle_v').textContent=nfmt(+get('share_valle').value);
+  $('kwh100_v').textContent=(+$('kwh100').value).toFixed(1);
+  $('p_kwh_home_v').textContent=fmtN(+$('p_kwh_home').value);
+  $('p_kwh_valle_v').textContent=fmtN(+$('p_kwh_valle').value);
+  $('p_kwh_punta_v').textContent=fmtN(+$('p_kwh_punta').value);
+  $('share_valle_v').textContent=fmtN(+$('share_valle').value);
+  $('p_kwh_pub_v').textContent=fmtN(+$('p_kwh_pub').value);
 
-  get('p_kwh_pub_v').textContent=nfmt(+get('p_kwh_pub').value);
-  get('l100_v').textContent=(+get('l100').value).toFixed(1);
-  get('p_fuel_v').textContent=nfmt(+get('p_fuel').value);
+  $('l100_v').textContent=(+$('l100').value).toFixed(1);
+  $('p_fuel_v').textContent=fmtN(+$('p_fuel').value);
 
-  get('mant_ev_v').textContent=nfmt(+get('mant_ev').value);
-  get('mant_ice_v').textContent=nfmt(+get('mant_ice').value);
+  $('mant_ev_v').textContent=fmtN(+$('mant_ev').value);
+  $('mant_ice_v').textContent=fmtN(+$('mant_ice').value);
+  $('seg_ev_v').textContent=fmtN(+$('seg_ev').value);
+  $('seg_ice_v').textContent=fmtN(+$('seg_ice').value);
+  $('pat_ev_v').textContent=fmtN(+$('pat_ev').value);
+  $('pat_ice_v').textContent=fmtN(+$('pat_ice').value);
 
-  get('precio_ev_v').textContent=nfmt(+get('precio_ev').value);
-  get('inc_ev_v').textContent=nfmt(+get('inc_ev').value);
-  get('precio_ice_v').textContent=nfmt(+get('precio_ice').value);
+  $('precio_ev_v').textContent=fmtN(+$('precio_ev').value);
+  $('inc_ev_v').textContent=fmtN(+$('inc_ev').value);
+  $('precio_ice_v').textContent=fmtN(+$('precio_ice').value);
+  $('res_ev_v').textContent=fmtN(+$('res_ev').value);
+  $('res_ice_v').textContent=fmtN(+$('res_ice').value);
 
-  get('batt_kwh_v').textContent=(+get('batt_kwh').value).toFixed(1);
-  get('batt_cost_v').textContent=nfmt(+get('batt_cost').value);
-  get('ice_bump_v').textContent=nfmt(+get('ice_bump').value);
+  $('batt_kwh_v').textContent=(+$('batt_kwh').value).toFixed(1);
+  $('batt_cost_v').textContent=fmtN(+$('batt_cost').value);
+  $('ice_bump_v').textContent=fmtN(+$('ice_bump').value);
 
-  // Mostrar/ocultar bloques de tarifa
-  const mode=get('tarifa_mode').value;
-  get('p_home_flat_wrap').style.display=(mode==='flat')?'block':'none';
-  get('p_home_tou_wrap').style.display=(mode==='tou')?'block':'none';
+  const mode=$('tarifa_mode').value;
+  $('p_home_flat_wrap').style.display=(mode==='flat')?'block':'none';
+  $('p_home_tou_wrap').style.display=(mode==='tou')?'block':'none';
 }
 
-['km','r','H','res_ev','res_ice','mix_home','kwh100','p_kwh_home','p_kwh_valle','p_kwh_punta','share_valle','p_kwh_pub','l100','p_fuel','mant_ev','mant_ice','precio_ev','inc_ev','precio_ice','batt_kwh','batt_cost','ice_bump','tarifa_mode'].forEach(id=>{
-  const el=get(id); if(!el) return;
-  el.addEventListener('input', syncLabels);
-});
-
-get('escenario').addEventListener('change', ()=>{
-  const v=get('escenario').value;
-  const map={H3r8:{H:3,r:8},H5r8:{H:5,r:8},H8r8:{H:8,r:8},H3r12:{H:3,r:12},H5r12:{H:5,r:12},H8r12:{H:8,r:12}};
-  if(v!=='custom'){ setVal('H',map[v].H); setVal('r',map[v].r); syncLabels(); }
-});
-
+/* Energía anual */
 function energiaEV(km,kwh100,mode,p_flat,p_valle,p_punta,share_valle,p_pub,mix_home){
   const kwh_year=(km/100)*kwh100;
-  const m=Math.min(Math.max(mix_home/100,0),1); // hogar vs pública
-  let p_home= p_flat;
-  if(mode==='tou'){
-    const sv=Math.min(Math.max(share_valle/100,0),1);
-    p_home = sv*p_valle + (1-sv)*p_punta;
-  }
+  const m=Math.min(Math.max(mix_home/100,0),1);
+  let p_home=p_flat;
+  if(mode==='tou'){ const sv=Math.min(Math.max(share_valle/100,0),1); p_home=sv*p_valle+(1-sv)*p_punta; }
   const p_mix = m*p_home + (1-m)*p_pub;
   return kwh_year * p_mix;
 }
 function energiaICE(km,l100,p_fuel){ return (km/100)*l100*p_fuel; }
 
-function npvOption({H,r,km,precio,incentivo,mant,seguro,patentes,otros,energia_fn,residual_pct,add_costs=[]}){
+/* Cálculo por vehículo */
+function makeInputs(){
+  const o={
+    H:+$('H').value, r:+$('r').value, km:+$('km').value, mix_home:+$('mix_home').value,
+    kwh100:+$('kwh100').value, tarifa_mode:$('tarifa_mode').value,
+    p_kwh_home:+$('p_kwh_home').value, p_kwh_valle:+$('p_kwh_valle').value, p_kwh_punta:+$('p_kwh_punta').value, share_valle:+$('share_valle').value,
+    p_kwh_pub:+$('p_kwh_pub').value, l100:+$('l100').value, p_fuel:+$('p_fuel').value,
+    mant_ev:+$('mant_ev').value, mant_ice:+$('mant_ice').value, seg_ev:+$('seg_ev').value, seg_ice:+$('seg_ice').value, pat_ev:+$('pat_ev').value, pat_ice:+$('pat_ice').value,
+    precio_ev:+$('precio_ev').value, inc_ev:+$('inc_ev').value, precio_ice:+$('precio_ice').value, res_ev:+$('res_ev').value, res_ice:+$('res_ice').value,
+    chg_batt:$('chg_batt').checked, batt_kwh:+$('batt_kwh').value, batt_cost:+$('batt_cost').value, ice_bump:+$('ice_bump').value
+  };
+  return o;
+}
+function npvOption({H,r,km,precio,incentivo,mant,seguro,patentes,energia_fn,residual_pct,add_costs=[], type}){
   const rr=r/100; const capex0=precio-incentivo; const residual=precio*(residual_pct/100);
-  let npv=capex0;
-  const cumVP=[]; // costos acumulados en valor presente por año
-  let acc=capex0;
+  let npv=capex0; let cumVP=[], acc=capex0;
+  let byCat = {energy:[], mant:[], segs:[], depr:[], events:[]}; // VP por año
   for(let t=1;t<=H;t++){
-    const energia=energia_fn();
-    const extra=add_costs.filter(c=>c.year===t).reduce((a,c)=>a+c.amount,0);
-    const opex=energia+mant+seguro+patentes+otros+extra;
-    const vp= opex/Math.pow(1+rr,t);
-    npv+=vp;
-    acc+=vp;
-    cumVP.push(acc);
+    const energy = energia_fn();
+    const event  = add_costs.filter(c=>c.year===t).reduce((a,c)=>a+c.amount,0);
+    const opex = energy + mant + seguro + patentes + event;
+    const vp = opex/Math.pow(1+rr,t);
+    npv+=vp; acc+=vp; cumVP.push(acc);
+    byCat.energy.push(energy/Math.pow(1+rr,t));
+    byCat.mant.push(mant/Math.pow(1+rr,t));
+    byCat.segs.push((seguro+patentes)/Math.pow(1+rr,t));
+    byCat.events.push(event/Math.pow(1+rr,t));
+    byCat.depr.push(0); // depreciación como ajuste final
   }
   const vpResidual = residual/Math.pow(1+rr,H);
-  npv -= vpResidual;
+  npv -= vpResidual;                 // restamos VP del residual
   cumVP[cumVP.length-1] -= vpResidual;
+  byCat.depr[H-1] = -vpResidual;     // se muestra en el último año
   const eac = npv * (rr/(1-Math.pow(1+rr,-H)));
   const lco = eac / km;
-  return {npv,eac,lco,capex0,residual,cumVP};
+  return {npv,eac,lco,capex0,residual,cumVP,byCat};
 }
 
-function packInputs(){
-  return {
-    H:+get('H').value, r:+get('r').value, km:+get('km').value,
-    res_ev:+get('res_ev').value, res_ice:+get('res_ice').value,
-    kwh100:+get('kwh100').value, tarifa_mode:get('tarifa_mode').value,
-    p_kwh_home:+get('p_kwh_home').value, p_kwh_valle:+get('p_kwh_valle').value, p_kwh_punta:+get('p_kwh_punta').value, share_valle:+get('share_valle').value,
-    p_kwh_pub:+get('p_kwh_pub').value, l100:+get('l100').value, p_fuel:+get('p_fuel').value,
-    mant_ev:+get('mant_ev').value, mant_ice:+get('mant_ice').value,
-    precio_ev:+get('precio_ev').value, inc_ev:+get('inc_ev').value, precio_ice:+get('precio_ice').value,
-    chg_batt:get('chg_batt').checked, batt_kwh:+get('batt_kwh').value, batt_cost:+get('batt_cost').value, ice_bump:+get('ice_bump').value,
-    mix_home:+get('mix_home').value
-  };
+/* Eventos por tipo */
+function buildAddCosts(inp,type){
+  const arr=[];
+  if(type==='EV' && inp.chg_batt && inp.H>=8) arr.push({year:8,amount: inp.batt_kwh*inp.batt_cost});
+  if(type==='ICE' && inp.H>=6 && inp.ice_bump>0) for(let y=6;y<=inp.H;y++) arr.push({year:y,amount: inp.ice_bump});
+  return arr;
 }
 
-function energiaFns(inp){
-  const eEV=()=>energiaEV(inp.km,inp.kwh100,inp.tarifa_mode,inp.p_kwh_home,inp.p_kwh_valle,inp.p_kwh_punta,inp.share_valle,inp.p_kwh_pub,inp.mix_home);
-  const eICE=()=>energiaICE(inp.km,inp.l100,inp.p_fuel);
-  return {eEV,eICE};
+/* UI Vehículos */
+function addVehicle(type, modelKey){
+  if(state.vehicles.length>=4){ alert('Máximo 4 vehículos.'); return; }
+  const id = 'v'+Math.random().toString(36).slice(2,8);
+  state.vehicles.push({id, type, modelKey: modelKey || 'custom'});
+  renderVehList();
 }
-
-function buildAddCosts(inp){
-  const add_ev=[];
-  if(inp.chg_batt && inp.H>=8) add_ev.push({year:8,amount: inp.batt_kwh*inp.batt_cost});
-  const add_ice=[];
-  if(inp.H>=6 && inp.ice_bump>0){ for(let y=6;y<=inp.H;y++) add_ice.push({year:y,amount: inp.ice_bump});}
-  return {add_ev,add_ice};
+function removeVehicle(id){
+  state.vehicles = state.vehicles.filter(v=>v.id!==id);
+  renderVehList();
 }
-
-let tornadoChart=null, linesChart=null;
-
-function renderTornado(baseInputs, baseDeltaNPV){
-  const tests = [
-    {key:'km', label:'Km/año (±20%)', low: baseInputs.km*0.8, high: baseInputs.km*1.2},
-    {key:'p_kwh_home', label:'kWh hogar (±30%)', low: Math.round(baseInputs.p_kwh_home*0.7), high: Math.round(baseInputs.p_kwh_home*1.3), cond: baseInputs.tarifa_mode==='flat'},
-    {key:'p_kwh_valle', label:'kWh valle (±30%)', low: Math.round(baseInputs.p_kwh_valle*0.7), high: Math.round(baseInputs.p_kwh_valle*1.3), cond: baseInputs.tarifa_mode==='tou'},
-    {key:'p_kwh_punta', label:'kWh punta (±30%)', low: Math.round(baseInputs.p_kwh_punta*0.7), high: Math.round(baseInputs.p_kwh_punta*1.3), cond: baseInputs.tarifa_mode==='tou'},
-    {key:'p_kwh_pub', label:'kWh pública (±30%)', low: Math.round(baseInputs.p_kwh_pub*0.7), high: Math.round(baseInputs.p_kwh_pub*1.3)},
-    {key:'kwh100', label:'Consumo EV (±20%)', low: baseInputs.kwh100*0.8, high: baseInputs.kwh100*1.2},
-    {key:'l100', label:'Consumo ICE (±20%)', low: baseInputs.l100*0.8, high: baseInputs.l100*1.2},
-    {key:'p_fuel', label:'Combustible (±30%)', low: Math.round(baseInputs.p_fuel*0.7), high: Math.round(baseInputs.p_fuel*1.3)},
-    {key:'mix_home', label:'% carga hogar (±20 pt)', low: Math.max(0, baseInputs.mix_home-20), high: Math.min(100, baseInputs.mix_home+20)},
-    {key:'r', label:'Tasa r (±4 pt)', low: Math.max(0, baseInputs.r-4), high: baseInputs.r+4},
-    {key:'res_ev', label:'Residual EV (±10%)', low: Math.max(0, baseInputs.res_ev-10), high: baseInputs.res_ev+10},
-    {key:'res_ice', label:'Residual ICE (±10%)', low: Math.max(0, baseInputs.res_ice-10), high: baseInputs.res_ice+10},
-  ].filter(t=>t.cond===undefined || t.cond);
-
-  const labels=[], lows=[], highs=[];
-  for(const t of tests){
-    const inpLow = {...baseInputs, [t.key]: t.low};
-    const inpHigh = {...baseInputs, [t.key]: t.high};
-    const lowDelta = deltaNPV(inpLow);
-    const highDelta = deltaNPV(inpHigh);
-    labels.push(t.label); lows.push(lowDelta); highs.push(highDelta);
-  }
-
-  const spans = labels.map((_,i)=> Math.max(Math.abs(lows[i]-baseDeltaNPV), Math.abs(highs[i]-baseDeltaNPV)));
-  const order = [...spans].map((v,i)=>[v,i]).sort((a,b)=>b[0]-a[0]).map(x=>x[1]);
-
-  const sortedLabels = order.map(i=>labels[i]);
-  const leftVals = order.map(i=> Math.min(lows[i], highs[i]) );
-  const rightVals= order.map(i=> Math.max(lows[i], highs[i]) );
-
-  const ctx=get('tornado').getContext('2d');
-  if(tornadoChart) tornadoChart.destroy();
-  tornadoChart = new Chart(ctx, {
-    type:'bar',
-    data:{ labels: sortedLabels,
-      datasets:[
-        {label:'Mín (ΔNPV)', data:leftVals, borderWidth:1},
-        {label:'Máx (ΔNPV)', data:rightVals, borderWidth:1}
-      ]
-    },
-    options:{
-      indexAxis:'y',
-      responsive:true,
-      scales:{
-        x:{title:{display:true,text:'ΔNPV = NPV_EV − NPV_ICE (CLP)'}, grid:{display:true}},
-        y:{grid:{display:false}}
-      },
-      plugins:{legend:{position:'bottom'}}
-    }
+function renderVehList(){
+  const box=$('vehList'); box.innerHTML='';
+  state.vehicles.forEach((v,idx)=>{
+    const m = findModel(v.type,v.modelKey);
+    const el=document.createElement('div'); el.className='veh';
+    el.innerHTML=`
+      <div class="top">
+        <span class="badge ${v.type==='EV'?'ev':'ice'}">${v.type}</span>
+        <button class="kill" title="Quitar" data-kill="${v.id}">✕</button>
+      </div>
+      <div class="small" style="margin-bottom:6px">#${idx+1}</div>
+      <div class="pill" style="margin-bottom:6px">
+        <label>Tipo</label>
+        <select data-type="${v.id}">
+          <option ${v.type==='EV'?'selected':''}>EV</option>
+          <option ${v.type==='ICE'?'selected':''}>ICE</option>
+        </select>
+      </div>
+      <div class="pill">
+        <label>Modelo</label>
+        <select data-model="${v.id}">
+          ${modelList(v.type).map(mm=>`<option value="${mm.key}" ${mm.key===v.modelKey?'selected':''}>${mm.name}</option>`).join('')}
+        </select>
+        <div class="small mono" style="margin-top:4px">${m.custom?'Usa controles Personalizado.':`Precio: CLP ${fmtN(m.price)} · ${v.type==='EV'?`Consumo: ${m.kwh100} kWh/100km`:`Consumo: ${m.l100} L/100km`}`}</div>
+      </div>
+    `;
+    box.appendChild(el);
+  });
+  // wire events
+  box.querySelectorAll('[data-kill]').forEach(b=> b.onclick=()=> removeVehicle(b.getAttribute('data-kill')));
+  box.querySelectorAll('[data-type]').forEach(s=> s.onchange=(e)=>{
+    const id=e.target.getAttribute('data-type'); const v=state.vehicles.find(x=>x.id===id);
+    v.type = e.target.value; v.modelKey='custom'; renderVehList();
+  });
+  box.querySelectorAll('[data-model]').forEach(s=> s.onchange=(e)=>{
+    const id=e.target.getAttribute('data-model'); const v=state.vehicles.find(x=>x.id===id);
+    v.modelKey = e.target.value; // no re-render to keep message fresh
   });
 }
 
-function deltaNPV(customInputs){
-  const inp = customInputs || packInputs();
-  const {eEV,eICE}=energiaFns(inp);
-  const {add_ev,add_ice}=buildAddCosts(inp);
-  const ev=npvOption({H:inp.H,r:inp.r,km:inp.km,precio:inp.precio_ev,incentivo:inp.inc_ev,mant:inp.mant_ev,seguro:600000,patentes:250000,otros:0,energia_fn:eEV,residual_pct:inp.res_ev,add_costs:add_ev});
-  const ice=npvOption({H:inp.H,r:inp.r,km:inp.km,precio:inp.precio_ice,incentivo:0,mant:inp.mant_ice,seguro:500000,patentes:300000,otros:0,energia_fn:eICE,residual_pct:inp.res_ice,add_costs:add_ice});
-  return ev.npv - ice.npv; // negativo favorece EV
-}
+/* Cálculo multi-vehículo */
+let tornadoChart=null, linesChart=null, catCharts={};
+function calc(){
+  const inp = makeInputs();
+  // construir definiciones por vehículo
+  const results=[];
+  state.vehicles.forEach((v,i)=>{
+    const mod = findModel(v.type, v.modelKey);
+    const params = {...inp};
+    let precio, residual_pct, energia_fn, mant, seguro, patentes, add_costs;
+    if(v.type==='EV'){
+      precio = mod.custom? inp.precio_ev : mod.price;
+      residual_pct = mod.custom? inp.res_ev : (mod.residual ?? inp.res_ev);
+      const kwh100 = mod.custom? inp.kwh100 : (mod.kwh100 ?? inp.kwh100);
+      const batt_kwh = mod.custom? inp.batt_kwh : (mod.batt_kwh ?? inp.batt_kwh);
+      if(mod.batt_kwh && !mod.custom) params.batt_kwh = batt_kwh; // usar batería del modelo
+      energia_fn = ()=> energiaEV(inp.km, kwh100, inp.tarifa_mode, inp.p_kwh_home, inp.p_kwh_valle, inp.p_kwh_punta, inp.share_valle, inp.p_kwh_pub, inp.mix_home);
+      mant = inp.mant_ev; seguro = inp.seg_ev; patentes = inp.pat_ev;
+      add_costs = buildAddCosts(params, 'EV');
+      results.push({id:v.id, label:`${v.type} — ${mod.name}`, type:'EV',
+        mod, out: npvOption({H:inp.H,r:inp.r,km:inp.km,precio,incentivo:inp.inc_ev,mant,seguro,patentes,energia_fn,residual_pct,add_costs,type:'EV'})});
+    }else{
+      precio = mod.custom? inp.precio_ice : mod.price;
+      residual_pct = mod.custom? inp.res_ice : (mod.residual ?? inp.res_ice);
+      const l100 = mod.custom? inp.l100 : (mod.l100 ?? inp.l100);
+      energia_fn = ()=> energiaICE(inp.km,l100,inp.p_fuel);
+      mant = inp.mant_ice; seguro = inp.seg_ice; patentes = inp.pat_ice;
+      add_costs = buildAddCosts(params, 'ICE');
+      results.push({id:v.id, label:`${v.type} — ${mod.name}`, type:'ICE',
+        mod, out: npvOption({H:inp.H,r:inp.r,km:inp.km,precio,incentivo:0,mant,seguro,patentes,energia_fn,residual_pct,add_costs,type:'ICE'})});
+    }
+  });
 
-function calcAndRender(){
-  const inp=packInputs();
-  const {eEV,eICE}=energiaFns(inp);
-  const {add_ev,add_ice}=buildAddCosts(inp);
+  if(results.length===0){ alert('Agrega al menos un EV y un ICE.'); return; }
 
-  const ev=npvOption({H:inp.H,r:inp.r,km:inp.km,precio:inp.precio_ev,incentivo:inp.inc_ev,mant:inp.mant_ev,seguro:600000,patentes:250000,otros:0,energia_fn:eEV,residual_pct:inp.res_ev,add_costs:add_ev});
-  const ice=npvOption({H:inp.H,r:inp.r,km:inp.km,precio:inp.precio_ice,incentivo:0,mant:inp.mant_ice,seguro:500000,patentes:300000,otros:0,energia_fn:eICE,residual_pct:inp.res_ice,add_costs:add_ice});
+  // ranking por NPV
+  results.sort((a,b)=> a.out.npv - b.out.npv);
+  const win = results[0];
+  const second = results[1] || null;
 
-  const winner = ev.npv < ice.npv ? "EV" : "ICE";
-  const diff = Math.abs(ev.npv - ice.npv);
-  const lco_winner = ev.npv < ice.npv ? ev.lco : ice.lco;
+  // Header KPIs
+  $('hdr_winner').textContent = win.label;
+  $('hdr_dnpv').textContent = second ? `CLP ${fmtN(second.out.npv - win.out.npv)}` : '—';
+  $('hdr_lco').textContent   = `CLP ${fmt2(win.out.lco)} / km`;
+  $('hdr_sav').textContent   = second ? `CLP ${fmtN(second.out.eac - win.out.eac)}/año` : '—';
 
-  get('win').textContent=winner;
-  get('diff').textContent=`CLP ${nfmt(diff)}`;
-  get('lco').textContent=`CLP ${nfmt2(lco_winner)} por km`;
-
-  get('out').innerHTML = `
-    <p><span class="winner">Recomendación:</span> <b>${winner}</b> (menor NPV total).</p>
-    <p class="muted">ΔNPV (|EV−ICE|): CLP ${nfmt(diff)}. </p>
-    <p class="mono">EV → NPV: CLP ${nfmt(ev.npv)} | EAC: CLP ${nfmt(ev.eac)}/año | Costo/km: CLP ${nfmt2(ev.lco)}</p>
-    <p class="mono">ICE → NPV: CLP ${nfmt(ice.npv)} | EAC: CLP ${nfmt(ice.eac)}/año | Costo/km: CLP ${nfmt2(ice.lco)}</p>
-    <hr/>
-    <p class="small muted">Energía anual estimada — EV: CLP ${nfmt(eEV())} · ICE: CLP ${nfmt(eICE())}</p>
+  // Costo normalizado por vehículo
+  const rows = results.map(r=>({label:r.label, lco:r.out.lco, npv:r.out.npv, eac:r.out.eac}));
+  const bestLCO = win.out.lco;
+  $('normCosts').innerHTML = `
+    <div class="kpi-grid">
+      ${rows.map((r,i)=>{
+        const diffPct = (r.lco - bestLCO)/bestLCO*100;
+        return `<div class="kpi">
+          <small>${r.label}</small>
+          <div style="display:flex;justify-content:space-between"><b>CLP ${fmt2(r.lco)}/km</b><span class="small ${i===0?'winner':''}">${i===0? 'Ganador' : (diffPct>=0? '+' : '')+fmt2(diffPct)+'%'}</span></div>
+          <div class="small">NPV: CLP ${fmtN(r.npv)} · EAC: CLP ${fmtN(r.out.eac)}/año</div>
+        </div>`;
+      }).join('')}
+    </div>
   `;
 
-  // Tornado
-  const d0 = ev.npv - ice.npv;
-  renderTornado(inp, d0);
-
-  // Líneas de costo acumulado (VP) y cruce
-  const years = Array.from({length: inp.H}, (_,i)=> i+1);
-  const ctx2=get('lines').getContext('2d');
+  // Líneas acumuladas VP
+  const years = Array.from({length: makeInputs().H }, (_,i)=> i+1);
   if(linesChart) linesChart.destroy();
-  linesChart = new Chart(ctx2, {
+  const ctxL = $('lines').getContext('2d');
+  linesChart = new Chart(ctxL, {
     type:'line',
-    data:{
-      labels: years.map(y=>`Año ${y}`),
-      datasets:[
-        {label:'EV (acum. VP)', data:ev.cumVP, tension:0.1, pointRadius:3},
-        {label:'ICE (acum. VP)', data:ice.cumVP, tension:0.1, pointRadius:3}
-      ]
+    data:{ labels: years.map(y=>'Año '+y),
+      datasets: results.map((r,i)=>({label:r.label, data:r.out.cumVP, tension:.1, pointRadius:2, borderWidth:2}))
     },
-    options:{
-      responsive:true,
-      scales:{ y:{title:{display:true,text:'Costo acumulado (CLP, valor presente)'}}},
-      plugins:{legend:{position:'bottom'}}
-    }
+    options:{ responsive:true, scales:{ y:{title:{display:true,text:'Costo acumulado (CLP, VP)'}}}, plugins:{legend:{position:'bottom'}} }
   });
-
-  // Punto de cruce aproximado
-  let cross='—';
-  for(let i=0;i<years.length;i++){
-    const d = ev.cumVP[i]-ice.cumVP[i];
-    if(i===0 && Math.sign(d)===0){ cross='Año 1'; break; }
-    if(i>0){
-      const prev = ev.cumVP[i-1]-ice.cumVP[i-1];
-      if((prev<=0 && d>=0) || (prev>=0 && d<=0)){
+  // Punto de cruce (usamos ganador vs. cada otro y mostramos el más temprano)
+  let earliest = null;
+  for(let k=1;k<results.length;k++){
+    const a = win.out.cumVP, b = results[k].out.cumVP;
+    for(let i=0;i<years.length;i++){
+      const d = a[i]-b[i], prev = i>0? a[i-1]-b[i-1]: null;
+      if(i>0 && ((prev<=0 && d>=0) || (prev>=0 && d<=0))){
         const t = Math.abs(prev)/(Math.abs(prev)+Math.abs(d));
-        const yearApprox = (i) + t; // entre año i y i+1
-        cross = `≈ Año ${yearApprox.toFixed(2)}`;
+        const y = (i) + t; // entre i e i+1
+        if(!earliest || y < earliest) earliest = y;
         break;
       }
     }
   }
-  get('crossnote').textContent = `Intersección: ${cross}`;
+  $('crossnote').textContent = 'Intersección: ' + (earliest ? `≈ Año ${earliest.toFixed(2)}` : '—');
 
-  // Guarda para exportar CSV
-  window.__lastResults = {winner,diff,ev,ice, energiaEV:eEV(), energiaICE:eICE(), inputs: inp};
+  // Tabs para breakdown (categorías)
+  renderTabs(results);
+  renderCategorySparklines(results, (tabsActive || results[0].id));
+
+  // Tornado (sobre ΔNPV entre EV e ICE principales si existen, si no: usa 1° vs 2°)
+  const baseDelta = results[1]? (results[0].out.npv - results[1].out.npv) : 0;
+  renderTornado(makeInputs(), baseDelta);
+
+  // Tablas por año
+  renderTables(results);
 }
 
-// Share URL con parámetros
-get('shareUrl').addEventListener('click', ()=>{
-  const inp=packInputs();
+/* Tabs + Sparklines */
+let tabsActive = null;
+function renderTabs(results){
+  const bar=$('vehTabs'); bar.innerHTML='';
+  results.forEach((r,i)=>{
+    const b=document.createElement('button');
+    b.className='tab'+( (tabsActive?tabsActive===r.id : i===0)?' active':'' );
+    b.textContent=r.label;
+    b.onclick=()=>{ tabsActive=r.id; renderTabs(results); renderCategorySparklines(results, r.id); };
+    bar.appendChild(b);
+  });
+  if(!tabsActive && results[0]) tabsActive = results[0].id;
+}
+function renderCategorySparklines(results, id){
+  const r = results.find(x=>x.id===id) || results[0];
+  const years = Array.from({length: makeInputs().H }, (_,i)=> i+1).map(y=>''+y);
+  const cats = r.out.byCat;
+  const cfg=(ctx,data)=> new Chart(ctx,{type:'line',data:{labels:years,datasets:[{data, tension:.3, pointRadius:0, borderWidth:2}]},options:{plugins:{legend:{display:false}}, scales:{x:{display:false},y:{display:false}}}});
+  // destroy prev
+  ['energy','mant','segs','depr'].forEach(k=>{ if(catCharts[k]) catCharts[k].destroy(); });
+  catCharts.energy = cfg($('cat_energy').getContext('2d'), cats.energy);
+  catCharts.mant   = cfg($('cat_mant').getContext('2d'),   cats.mant);
+  catCharts.segs   = cfg($('cat_segs').getContext('2d'),   cats.segs);
+  catCharts.depr   = cfg($('cat_depr').getContext('2d'),   cats.depr);
+}
+
+/* Tornado (sobre ΔNPV) */
+function deltaNPV(inp, tweak){
+  const base = simulatePair(inp);
+  const d0 = base.main.npv - base.alt.npv;
+  if(!tweak) return d0;
+  const t = {...inp, ...tweak};
+  const sim = simulatePair(t);
+  return sim.main.npv - sim.alt.npv;
+}
+// el “pair” será mejor dos primeros del ranking tras simular con 2 vehículos (si hay >2, usamos los dos mejores del escenario base)
+function simulatePair(inp){
+  if(state.vehicles.length<2){
+    // simular con un EV y un ICE personalizados por defecto
+    const temp = [
+      {type:'EV', mod:{custom:true}},
+      {type:'ICE', mod:{custom:true}}
+    ];
+    const res = temp.map(v=> computeSingle(inp,v.type,v.mod));
+    res.sort((a,b)=> a.npv-b.npv);
+    return {main:res[0], alt:res[1]};
+  }
+  // usar los dos mejores del cálculo actual
+  const res = state.vehicles.slice(0,2).map(v=>{
+    const mod = findModel(v.type, v.modelKey);
+    return computeSingle(inp, v.type, mod);
+  });
+  res.sort((a,b)=> a.npv-b.npv);
+  return {main:res[0], alt:res[1]};
+}
+function computeSingle(inp,type,mod){
+  let precio,residual_pct,energia_fn,mant,seguro,patentes,add_costs;
+  if(type==='EV'){
+    precio = mod.custom? inp.precio_ev : (mod.price ?? inp.precio_ev);
+    residual_pct = mod.custom? inp.res_ev : (mod.residual ?? inp.res_ev);
+    const kwh100 = mod.custom? inp.kwh100 : (mod.kwh100 ?? inp.kwh100);
+    energia_fn = ()=> energiaEV(inp.km,kwh100,inp.tarifa_mode,inp.p_kwh_home,inp.p_kwh_valle,inp.p_kwh_punta,inp.share_valle,inp.p_kwh_pub,inp.mix_home);
+    mant=inp.mant_ev; seguro=inp.seg_ev; patentes=inp.pat_ev; add_costs=buildAddCosts(inp,'EV');
+    return npvOption({H:inp.H,r:inp.r,km:inp.km,precio,incentivo:inp.inc_ev,mant,seguro,patentes,energia_fn,residual_pct,add_costs,type:'EV'});
+  }else{
+    precio = mod.custom? inp.precio_ice : (mod.price ?? inp.precio_ice);
+    residual_pct = mod.custom? inp.res_ice : (mod.residual ?? inp.res_ice);
+    const l100 = mod.custom? inp.l100 : (mod.l100 ?? inp.l100);
+    energia_fn = ()=> energiaICE(inp.km,l100,inp.p_fuel);
+    mant=inp.mant_ice; seguro=inp.seg_ice; patentes=inp.pat_ice; add_costs=buildAddCosts(inp,'ICE');
+    return npvOption({H:inp.H,r:inp.r,km:inp.km,precio,incentivo:0,mant,seguro,patentes,energia_fn,residual_pct,add_costs,type:'ICE'});
+  }
+}
+function renderTornado(inp, baseDelta){
+  const tests = [
+    {k:'km', lb:'Km/año (±20%)', l: inp.km*0.8, h: inp.km*1.2},
+    {k:'p_kwh_home', lb:'kWh hogar (±30%)', l: Math.round(inp.p_kwh_home*0.7), h: Math.round(inp.p_kwh_home*1.3), cond: inp.tarifa_mode==='flat'},
+    {k:'p_kwh_valle', lb:'kWh valle (±30%)', l: Math.round(inp.p_kwh_valle*0.7), h: Math.round(inp.p_kwh_valle*1.3), cond: inp.tarifa_mode==='tou'},
+    {k:'p_kwh_punta', lb:'kWh punta (±30%)', l: Math.round(inp.p_kwh_punta*0.7), h: Math.round(inp.p_kwh_punta*1.3), cond: inp.tarifa_mode==='tou'},
+    {k:'p_kwh_pub', lb:'kWh pública (±30%)', l: Math.round(inp.p_kwh_pub*0.7), h: Math.round(inp.p_kwh_pub*1.3)},
+    {k:'kwh100', lb:'Consumo EV (±20%)', l: inp.kwh100*0.8, h: inp.kwh100*1.2},
+    {k:'l100', lb:'Consumo ICE (±20%)', l: inp.l100*0.8, h: inp.l100*1.2},
+    {k:'p_fuel', lb:'Combustible (±30%)', l: Math.round(inp.p_fuel*0.7), h: Math.round(inp.p_fuel*1.3)},
+    {k:'mix_home', lb:'% carga hogar (±20 pt)', l: Math.max(0, inp.mix_home-20), h: Math.min(100, inp.mix_home+20)},
+    {k:'r', lb:'Tasa r (±4 pt)', l: Math.max(0, inp.r-4), h: inp.r+4},
+    {k:'res_ev', lb:'Residual EV (±10 pt)', l: Math.max(0, inp.res_ev-10), h: inp.res_ev+10},
+    {k:'res_ice', lb:'Residual ICE (±10 pt)', l: Math.max(0, inp.res_ice-10), h: inp.res_ice+10},
+  ].filter(t=>t.cond===undefined || t.cond);
+  const labels=[], lows=[], highs=[];
+  tests.forEach(t=>{
+    const dL = deltaNPV(inp, {[t.k]: t.l});
+    const dH = deltaNPV(inp, {[t.k]: t.h});
+    labels.push(t.lb); lows.push(dL); highs.push(dH);
+  });
+  const spans = labels.map((_,i)=> Math.max(Math.abs(lows[i]-baseDelta), Math.abs(highs[i]-baseDelta)));
+  const order = spans.map((v,i)=>[v,i]).sort((a,b)=>b[0]-a[0]).map(x=>x[1]);
+  const L = order.map(i=>labels[i]), lo=order.map(i=>Math.min(lows[i],highs[i])), hi=order.map(i=>Math.max(lows[i],highs[i]));
+  if(tornadoChart) tornadoChart.destroy();
+  tornadoChart = new Chart($('tornado').getContext('2d'),{
+    type:'bar',
+    data:{labels:L, datasets:[{label:'Mín (ΔNPV)',data:lo},{label:'Máx (ΔNPV)',data:hi}]},
+    options:{indexAxis:'y', plugins:{legend:{position:'bottom'}}, scales:{x:{title:{display:true,text:'ΔNPV = NPV_main − NPV_alt (CLP)'}}}}
+  });
+}
+
+/* Tablas detalladas */
+function renderTables(results){
+  const H = +$('H').value, r = +$('r').value/100;
+  const host=$('tables'); host.innerHTML='';
+  results.forEach((rsl)=>{
+    const {byCat,residual} = rsl.out;
+    const years = Array.from({length:H}, (_,i)=> i+1);
+    const rows = years.map((y,i)=>{
+      const energy = byCat.energy[i];
+      const mant   = byCat.mant[i];
+      const segs   = byCat.segs[i];
+      const events = byCat.events[i];
+      const depr   = byCat.depr[i]; // incluye -VP residual en el último año
+      const total  = energy+mant+segs+events+Math.max(0,depr); // la “depr” aquí es negativa; no la sumamos salvo que quieras ver el ajuste
+      return {y, energy, mant, segs, events, depr, total};
+    });
+    const totalVP = rows.reduce((a,x)=>a+x.total,0) + Math.abs(Math.min(0, rows[H-1].depr)); // +|depr negativa|
+    const tbl = document.createElement('div'); tbl.style.margin='10px 0 18px';
+    tbl.innerHTML = `<h3 style="margin:6px 0">${rsl.label}</h3>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Año</th>
+            ${years.map(y=>`<th>${y}</th>`).join('')}
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Energía</td>${rows.map(x=>`<td>${fmtN(x.energy)}</td>`).join('')}<td>${fmtN(rows.reduce((a,x)=>a+x.energy,0))}</td></tr>
+          <tr><td>Mantención</td>${rows.map(x=>`<td>${fmtN(x.mant)}</td>`).join('')}<td>${fmtN(rows.reduce((a,x)=>a+x.mant,0))}</td></tr>
+          <tr><td>Seguros/Permisos</td>${rows.map(x=>`<td>${fmtN(x.segs)}</td>`).join('')}<td>${fmtN(rows.reduce((a,x)=>a+x.segs,0))}</td></tr>
+          <tr><td>Eventos</td>${rows.map(x=>`<td>${fmtN(x.events)}</td>`).join('')}<td>${fmtN(rows.reduce((a,x)=>a+x.events,0))}</td></tr>
+          <tr><td>Depreciación/Residual (ajuste VP)</td>${rows.map(x=>`<td>${fmtN(x.depr)}</td>`).join('')}<td>${fmtN(rows.reduce((a,x)=>a+x.depr,0))}</td></tr>
+        </tbody>
+        <tfoot>
+          <tr><td><b>NPV (sin Capex)</b></td>${years.map(_=>`<td></td>`).join('')}<td><b>${fmtN(totalVP)}</b></td></tr>
+          <tr><td><b>Capex inicial − Incentivo</b></td>${years.map(_=>`<td></td>`).join('')}<td><b>${fmtN(rsl.out.capex0)}</b></td></tr>
+          <tr><td><b>NPV total</b></td>${years.map(_=>`<td></td>`).join('')}<td><b>${fmtN(rsl.out.npv)}</b></td></tr>
+          <tr><td><b>CLP/km</b></td>${years.map(_=>`<td></td>`).join('')}<td><b>${fmt2(rsl.out.lco)}</b></td></tr>
+        </tfoot>
+      </table>`;
+    host.appendChild(tbl);
+  });
+}
+
+/* Share URL */
+$('shareUrl').addEventListener('click', ()=>{
+  const inp=makeInputs();
+  // también guardamos lista de vehículos (tipo y modelo)
   const params=new URLSearchParams();
   Object.entries(inp).forEach(([k,v])=> params.set(k,String(v)));
+  params.set('veh', state.vehicles.map(v=>`${v.type}:${v.modelKey}`).join('|'));
   const url=`${location.origin}${location.pathname}?${params.toString()}`;
   navigator.clipboard.writeText(url).then(()=> alert('Link copiado al portapapeles.'));
 });
 
-// PDF
-get('exportPdf').addEventListener('click', ()=> window.print());
+/* Ayuda + Cómo calculamos */
+$('help').onclick=()=> $('modalHelp').classList.add('show');
+document.querySelectorAll('.closex').forEach(x=> x.onclick=()=> $(x.getAttribute('data-x')).classList.remove('show'));
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ document.querySelectorAll('.modal').forEach(m=>m.classList.remove('show')); }});
+/* (acceso desde el título de Tornado) */
+document.addEventListener('click', (e)=>{ if(e.target && e.target.id==='how'){ $('modalHow').classList.add('show'); }});
 
-// CSV
-get('exportCsv').addEventListener('click', ()=>{
-  const r=window.__lastResults;
-  if(!r){ alert('Primero calcula resultados.'); return; }
-  const {winner,diff,ev,ice,energiaEV,energiaICE,inputs}=r;
-  const rows=[
-    ['Campo','Valor'],
-    ['Ganador', winner],
-    ['Diferencia NPV (CLP)', diff],
-    ['EV NPV (CLP)', ev.npv],
-    ['EV EAC (CLP/año)', ev.eac],
-    ['EV Costo/km (CLP)', ev.lco],
-    ['ICE NPV (CLP)', ice.npv],
-    ['ICE EAC (CLP/año)', ice.eac],
-    ['ICE Costo/km (CLP)', ice.lco],
-    ['EV Energía anual (CLP)', energiaEV],
-    ['ICE Energía anual (CLP)', energiaICE],
-    ['—','—'],
-    ['Supuestos',''],
-    ...Object.entries(inputs).map(([k,v])=>[k,v])
-  ];
-  const csv = rows.map(r=>r.map(x=>`"${String(x).replace(/"/g,'""')}"`).join(',')).join('\n');
-  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a'); a.href=url; a.download='ev_vs_ice_tco.csv'; document.body.appendChild(a); a.click(); a.remove();
-  URL.revokeObjectURL(url);
-});
+/* Calcular */
+$('calc').addEventListener('click', calc);
+/* Add vehicles */
+$('addEV').onclick=()=> addVehicle('EV');
+$('addICE').onclick=()=> addVehicle('ICE');
 
-// Reset
-get('reset').addEventListener('click', ()=>{
-  history.replaceState({},'', location.pathname);
-  Object.entries(defaults).forEach(([k,v])=>{
-    if(get(k)){
-      if(typeof v==='boolean') get(k).checked=v;
-      else get(k).value=v;
-    }
-  });
-  get('escenario').value='H8r12';
-  syncLabels();
-  get('out').innerHTML='<p class="muted">Reseteado. Ajusta y presiona <b>Calcular</b>.</p>';
-  get('win').textContent='—'; get('diff').textContent='—'; get('lco').textContent='—';
-  get('crossnote').textContent='Intersección: —';
-  window.__lastResults=null;
-});
-
-// 🔧 Engancha el botón Calcular (fix principal)
-get('calc').addEventListener('click', calcAndRender);
-
-
-  
-// Carga inicial: desde URL o defaults
+/* Init */
 (function init(){
-  // defaults primero
-  Object.entries(defaults).forEach(([k,v])=>{
-    if(get(k)){
-      if(typeof v==='boolean') get(k).checked=v;
-      else get(k).value=v;
-    }
-  });
-  // luego override con querystring
+  // defaults
+  Object.entries(defaults).forEach(([k,v])=>{ if($(k)){ if(typeof v==='boolean') $(k).checked=v; else $(k).value=v; }});
+  // URL override
   for(const [k,v] of qs.entries()){
-    if(get(k)) setVal(k, (/^\d+(\.\d+)?$/.test(v)? Number(v): v));
+    if(k==='veh') continue;
+    if($(k)) { if($(k).type==='checkbox') $(k).checked=(v==='true'||v==='1'); else $(k).value=(/^\d+(\.\d+)?$/.test(v)? Number(v): v); }
   }
   syncLabels();
+  // Vehículos: desde URL o por defecto (1 EV Dolphin + 1 ICE Swift)
+  if(qs.get('veh')){
+    const spec = qs.get('veh').split('|').slice(0,4);
+    spec.forEach(s=>{
+      const [type,modelKey]=s.split(':');
+      if(type==='EV'||type==='ICE') addVehicle(type, modelKey);
+    });
+  }else{
+    addVehicle('EV','byd_dolphin_mini');
+    addVehicle('ICE','suzuki_swift');
+  }
 })();
+function getCSSVar(name){return getComputedStyle(document.documentElement).getPropertyValue(name).trim();}
 </script>
 </body>
 </html>
