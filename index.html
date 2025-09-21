@@ -4,7 +4,7 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>EV vs ICE — TCO/NPV con Sensibilidades</title>
-<link rel="icon" href="Logo_1.svg"/>
+<link rel="icon" href="logo.svg"/>
 <style>
 :root{--bg:#0b1220;--card:#141c2c;--ink:#e9eef7;--muted:#9fb0c9;--accent:#5dd0a6;--danger:#ff6b6b}
 *{box-sizing:border-box}
@@ -252,7 +252,7 @@ canvas{background:#0d1422;border:1px solid #27324a;border-radius:12px;padding:8p
     <h2>Notas rápidas</h2>
     <ul class="small">
       <li>EV mantención base: <b>CLP 200.000/año</b> (ajustable). ICE: <b>CLP 380.000/año</b> (ajustable).</li>
-      <li>Costo batería paramétrico (por si quieres estresar escenarios); reemplazos reales son poco frecuentes y a veces en garantía.</li>
+      <li>Costo batería paramétrico (para estresar escenarios); reemplazos reales son poco frecuentes y a veces en garantía.</li>
     </ul>
   </div>
 </div>
@@ -261,18 +261,19 @@ canvas{background:#0d1422;border:1px solid #27324a;border-radius:12px;padding:8p
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
 <script>
-function nfmt(n,d=0){return n.toLocaleString('es-CL',{maximumFractionDigits:d})}
-function nfmt2(n){return n.toLocaleString('es-CL',{maximumFractionDigits:2})}
-function get(id){return document.getElementById(id)}
+function nfmt(n,d=0){return n.toLocaleString('es-CL',{maximumFractionDigits:d});}
+function nfmt2(n){return n.toLocaleString('es-CL',{maximumFractionDigits:2});}
+function get(id){return document.getElementById(id);}
 const qs = new URLSearchParams(location.search);
 
 const defaults = {
-  km:15000,r:12,H:8,res_ev:40,res_ice:35,
-  kwh100:15,tarifa_mode:'flat',p_kwh_home:200,p_kwh_valle:140,p_kwh_punta:280,share_valle:70,
-  p_kwh_pub:380,l100:7,p_fuel:1200,
-  mant_ev:200000,mant_ice:380000,
-  precio_ev:19000000,inc_ev:0,precio_ice:13000000,
-  chg_batt:true,batt_kwh:38,batt_cost:100000,ice_bump:150000
+  km:15000, r:12, H:8, res_ev:40, res_ice:35,
+  mix_home:70,
+  kwh100:15, tarifa_mode:'flat', p_kwh_home:200, p_kwh_valle:140, p_kwh_punta:280, share_valle:70,
+  p_kwh_pub:380, l100:7, p_fuel:1200,
+  mant_ev:200000, mant_ice:380000,
+  precio_ev:19000000, inc_ev:0, precio_ice:13000000,
+  chg_batt:true, batt_kwh:38, batt_cost:100000, ice_bump:150000
 };
 
 function setVal(id,val){
@@ -394,7 +395,6 @@ function buildAddCosts(inp){
 let tornadoChart=null, linesChart=null;
 
 function renderTornado(baseInputs, baseDeltaNPV){
-  // Parámetros y deltas (impacto sobre ΔNPV = NPV_EV − NPV_ICE)
   const tests = [
     {key:'km', label:'Km/año (±20%)', low: baseInputs.km*0.8, high: baseInputs.km*1.2},
     {key:'p_kwh_home', label:'kWh hogar (±30%)', low: Math.round(baseInputs.p_kwh_home*0.7), high: Math.round(baseInputs.p_kwh_home*1.3), cond: baseInputs.tarifa_mode==='flat'},
@@ -416,12 +416,11 @@ function renderTornado(baseInputs, baseDeltaNPV){
     const inpHigh = {...baseInputs, [t.key]: t.high};
     const lowDelta = deltaNPV(inpLow);
     const highDelta = deltaNPV(inpHigh);
-    const span = Math.max(Math.abs(lowDelta-baseDeltaNPV), Math.abs(highDelta-baseDeltaNPV));
     labels.push(t.label); lows.push(lowDelta); highs.push(highDelta);
   }
 
-  const dataSpans = labels.map((_,i)=> Math.max(Math.abs(lows[i]-baseDeltaNPV), Math.abs(highs[i]-baseDeltaNPV)));
-  const order = [...dataSpans].map((v,i)=>[v,i]).sort((a,b)=>b[0]-a[0]).map(x=>x[1]);
+  const spans = labels.map((_,i)=> Math.max(Math.abs(lows[i]-baseDeltaNPV), Math.abs(highs[i]-baseDeltaNPV)));
+  const order = [...spans].map((v,i)=>[v,i]).sort((a,b)=>b[0]-a[0]).map(x=>x[1]);
 
   const sortedLabels = order.map(i=>labels[i]);
   const leftVals = order.map(i=> Math.min(lows[i], highs[i]) );
@@ -431,8 +430,7 @@ function renderTornado(baseInputs, baseDeltaNPV){
   if(tornadoChart) tornadoChart.destroy();
   tornadoChart = new Chart(ctx, {
     type:'bar',
-    data:{
-      labels: sortedLabels,
+    data:{ labels: sortedLabels,
       datasets:[
         {label:'Mín (ΔNPV)', data:leftVals, borderWidth:1},
         {label:'Máx (ΔNPV)', data:rightVals, borderWidth:1}
@@ -442,7 +440,7 @@ function renderTornado(baseInputs, baseDeltaNPV){
       indexAxis:'y',
       responsive:true,
       scales:{
-        x:{title:{display:true,text:'ΔNPV = NPV_EV − NPV_ICE (CLP)'}, grid:{display:true}, zeroLineWidth:2},
+        x:{title:{display:true,text:'ΔNPV = NPV_EV − NPV_ICE (CLP)'}, grid:{display:true}},
         y:{grid:{display:false}}
       },
       plugins:{legend:{position:'bottom'}}
@@ -516,9 +514,8 @@ function calcAndRender(){
     if(i>0){
       const prev = ev.cumVP[i-1]-ice.cumVP[i-1];
       if((prev<=0 && d>=0) || (prev>=0 && d<=0)){
-        // interpolación lineal simple
         const t = Math.abs(prev)/(Math.abs(prev)+Math.abs(d));
-        const yearApprox = (i) + t; // entre i y i+1 (base 1)
+        const yearApprox = (i) + t; // entre año i y i+1
         cross = `≈ Año ${yearApprox.toFixed(2)}`;
         break;
       }
@@ -572,7 +569,6 @@ get('exportCsv').addEventListener('click', ()=>{
 
 // Reset
 get('reset').addEventListener('click', ()=>{
-  // limpia querystring y valores
   history.replaceState({},'', location.pathname);
   Object.entries(defaults).forEach(([k,v])=>{
     if(get(k)){
@@ -587,6 +583,9 @@ get('reset').addEventListener('click', ()=>{
   get('crossnote').textContent='Intersección: —';
   window.__lastResults=null;
 });
+
+// 🔧 Engancha el botón Calcular (fix principal)
+get('calc').addEventListener('click', calcAndRender);
 
 // Carga inicial: desde URL o defaults
 (function init(){
