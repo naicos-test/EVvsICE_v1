@@ -4,34 +4,34 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>EV vs ICE — Comparador TCO/NPV</title>
-<link rel="icon" href="Logo_v1.svg"/>
+<link rel="icon" href="logo.svg"/>
+
+<!-- ───── Security headers (CSP + Referrer) ───── -->
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'self';
+               script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;
+               style-src 'self' 'unsafe-inline';
+               img-src 'self' data:;
+               frame-ancestors 'none';
+               upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
 <style>
 /* ───────────────── THEME (claro, minimal, acento índigo) ───────────────── */
 :root{
-  --bg:#f6f7fb;           /* fondo claro */
-  --ink:#1f2533;          /* texto principal */
-  --muted:#6b7280;        /* texto secundario */
-  --card:#ffffff;         /* tarjetas */
-  --line:#e6e8ef;         /* bordes suaves */
-  --accent:#6c7ae0;       /* índigo / violeta suave */
-  --accent-2:#0ea5e9;     /* cian para datasets extra */
-  --accent-3:#f59e0b;     /* ámbar */
-  --accent-4:#a78bfa;     /* lila */
-  --danger:#ef4444;       /* rojo */
-  --ok:#10b981;           /* verde */
-  --shadow: 0 10px 30px rgba(17,23,34,.08);
+  --bg:#f6f7fb; --ink:#1f2533; --muted:#6b7280; --card:#ffffff; --line:#e6e8ef;
+  --accent:#6c7ae0; --accent-2:#0ea5e9; --accent-3:#f59e0b; --accent-4:#a78bfa;
+  --danger:#ef4444; --ok:#10b981; --shadow: 0 10px 30px rgba(17,23,34,.08);
 }
 *{box-sizing:border-box}
 html,body{height:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,Segoe UI,Arial}
 a{color:var(--accent);text-decoration:none}
-.wrap{max-width:1200px;margin:0 auto;padding:90px 16px 24px} /* espacio para header sticky */
+.wrap{max-width:1200px;margin:0 auto;padding:90px 16px 24px}
 
-/* ───────────────── Sticky Header KPIs ───────────────── */
-.header{
-  position:sticky; top:0; z-index:20; backdrop-filter: blur(6px);
-  background:rgba(246,247,251,.9); border-bottom:1px solid var(--line);
-}
+/* Header sticky */
+.header{position:sticky; top:0; z-index:20; backdrop-filter: blur(6px);
+  background:rgba(246,247,251,.9); border-bottom:1px solid var(--line);}
 .header-inner{max-width:1200px;margin:0 auto;padding:10px 16px; display:flex; gap:12px; align-items:center; justify-content:space-between}
 .brand{display:flex; align-items:center; gap:10px}
 .brand h1{font-size:18px; margin:0}
@@ -44,7 +44,7 @@ a{color:var(--accent);text-decoration:none}
 .btn.alt{background:#111827; color:#fff}
 .btn.ghost{background:#eef1ff; color:#2b318a}
 
-/* ───────────────── Layout ───────────────── */
+/* Layout */
 .grid{display:grid; grid-template-columns:1.15fr .85fr; gap:16px}
 .card{background:var(--card); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow); padding:14px}
 .card h2{margin:0 0 8px; font-size:18px}
@@ -58,7 +58,7 @@ input,select{width:100%; padding:8px 10px; border-radius:10px; border:1px solid 
 .mono{font-family:ui-monospace, Menlo, Consolas, monospace}
 hr{border:none; border-top:1px solid var(--line); margin:12px 0}
 
-/* ───────────────── Vehicle list ───────────────── */
+/* Vehículos */
 .vehlist{display:flex; flex-wrap:wrap; gap:10px}
 .veh{flex:1 1 260px; min-width:260px; background:#fff; border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow); padding:10px}
 .veh .top{display:flex; justify-content:space-between; align-items:center; margin-bottom:6px}
@@ -67,12 +67,12 @@ hr{border:none; border-top:1px solid var(--line); margin:12px 0}
 .badge.ice{background:#fff7ed; color:#c2410c}
 .kill{border:none; background:transparent; color:#9ca3af; cursor:pointer}
 
-/* ───────────────── Results area ───────────────── */
+/* Resultados */
 .kpi-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:12px}
 .result{font-size:14px; line-height:1.5}
 .winner{color:var(--ok); font-weight:800}
 
-/* ───────────────── Category cards w/ sparklines ───────────────── */
+/* Tarjetas por categoría */
 .tabs{display:flex; gap:8px; flex-wrap:wrap; margin:6px 0 10px}
 .tab{border:1px solid var(--line); border-radius:10px; padding:6px 10px; background:#fff; cursor:pointer}
 .tab.active{background:#eef1ff; color:#2b318a; border-color:#cfd6ff}
@@ -81,10 +81,10 @@ hr{border:none; border-top:1px solid var(--line); margin:12px 0}
 .cat h4{margin:0 0 6px; font-size:13px; color:#374151}
 .canvas-wrap{height:80px}
 
-/* ───────────────── Charts ───────────────── */
+/* Charts */
 canvas{background:#fff; border:1px solid var(--line); border-radius:12px; padding:6px}
 
-/* ───────────────── Sliders compactos ───────────────── */
+/* Sliders compactos */
 :root{ --range-track-h: 4px; --range-thumb: 12px }
 input[type="range"]{-webkit-appearance:none; appearance:none; height:var(--range-thumb); padding:0; background:transparent}
 input[type="range"]::-webkit-slider-runnable-track{height:var(--range-track-h); background:#d7dbea; border-radius:999px}
@@ -93,20 +93,20 @@ input[type="range"]::-moz-range-track{height:var(--range-track-h); background:#d
 input[type="range"]::-moz-range-thumb{width:var(--range-thumb); height:var(--range-thumb); border-radius:50%; background:var(--accent); border:2px solid #fff}
 .pill{padding:6px 8px}.small{font-size:11.5px}
 
-/* ───────────────── Modals ───────────────── */
+/* Modals */
 .modal{position:fixed; inset:0; background:rgba(0,0,0,.35); display:none; align-items:center; justify-content:center; z-index:50}
 .modal.show{display:flex}
 .modal .panel{max-width:780px; width:96%; background:#fff; border-radius:16px; box-shadow:var(--shadow); padding:14px}
 .modal .panel h3{margin:0 0 8px}
 .closex{float:right; cursor:pointer; color:#9ca3af}
 
-/* ───────────────── Tables ───────────────── */
+/* Tables */
 .table{width:100%; border-collapse:collapse; font-size:13px}
 .table th,.table td{border:1px solid var(--line); padding:6px 8px; text-align:right}
 .table th:first-child,.table td:first-child{text-align:left}
 .table tfoot td{font-weight:700}
 
-/* ───────────────── Responsive ───────────────── */
+/* Responsive */
 @media (max-width:1100px){
   .grid{grid-template-columns:1fr}
   .kpis{grid-template-columns:1fr 1fr}
@@ -120,11 +120,11 @@ input[type="range"]::-moz-range-thumb{width:var(--range-thumb); height:var(--ran
 </head>
 <body>
 
-<!-- ───────────────── Sticky Header ───────────────── -->
+<!-- Header -->
 <div class="header">
   <div class="header-inner">
     <div class="brand">
-      <img src="Logo_v1.svg" alt="logo" style="width:27px;height:27px">
+      <img src="logo.svg" alt="logo" style="width:26px;height:26px">
       <h1>EV vs ICE — Comparador TCO/NPV</h1>
     </div>
     <div class="kpis">
@@ -143,7 +143,7 @@ input[type="range"]::-moz-range-thumb{width:var(--range-thumb); height:var(--ran
 
 <div class="wrap">
   <div class="grid">
-    <!-- ───────────────── Panel izquierdo: parámetros + vehículos ───────────────── -->
+    <!-- Panel izquierdo: parámetros + vehículos -->
     <div class="card">
       <h2>Parámetros globales</h2>
       <div class="row">
@@ -330,7 +330,7 @@ input[type="range"]::-moz-range-thumb{width:var(--range-thumb); height:var(--ran
       </div>
     </div>
 
-    <!-- ───────────────── Panel derecho: resultados y gráficos ───────────────── -->
+    <!-- Panel derecho: resultados y gráficos -->
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:center">
         <h2>Resultados</h2>
@@ -399,8 +399,9 @@ input[type="range"]::-moz-range-thumb{width:var(--range-thumb); height:var(--ran
   </div>
 </div>
 
-<!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<!-- Cargador local que trae Chart.js desde jsDelivr -->
+<script src="chart.umd.min.js"></script>
+
 <script>
 /* ───────────── Utilidades ───────────── */
 const fmtN = (n,d=0)=> n.toLocaleString('es-CL',{maximumFractionDigits:d});
@@ -409,7 +410,25 @@ const $ = (id)=> document.getElementById(id);
 const qs = new URLSearchParams(location.search);
 function getCSS(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
 
-/* Estado global (¡sin redeclaraciones!) */
+/* Saneamiento de parámetros de URL */
+const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
+const VALID_RANGES = {
+  km:[8000,30000], r:[0,30], H:[1,15], mix_home:[0,100],
+  kwh100:[8,30], p_kwh_home:[50,600], p_kwh_valle:[50,600], p_kwh_punta:[50,1000],
+  share_valle:[0,100], p_kwh_pub:[100,1000],
+  l100:[3,15], p_fuel:[500,3000],
+  mant_ev:[0,2000000], mant_ice:[0,2000000], seg_ev:[0,3000000], seg_ice:[0,3000000],
+  pat_ev:[0,2000000],  pat_ice:[0,2000000],
+  precio_ev:[5000000,100000000], inc_ev:[0,10000000], precio_ice:[3000000,100000000],
+  res_ev:[0,100], res_ice:[0,100],
+  batt_kwh:[10,150], batt_cost:[10000,500000], ice_bump:[0,2000000]
+};
+const ENUMS = {
+  tarifa_mode: new Set(['flat','tou']),
+  escenario:   new Set(['custom','H3r8','H5r8','H8r8','H3r12','H5r12','H8r12'])
+};
+
+/* Estado global */
 const defaults = {
   km:15000, r:12, H:8, mix_home:70,
   kwh100:15, tarifa_mode:'flat', p_kwh_home:200, p_kwh_valle:140, p_kwh_punta:280, share_valle:70,
@@ -418,7 +437,7 @@ const defaults = {
   precio_ev:19000000, inc_ev:0, precio_ice:13000000, res_ev:40, res_ice:35,
   chg_batt:true, batt_kwh:38, batt_cost:100000, ice_bump:150000
 };
-const state = { vehicles: [] };     // {id,type:'EV'|'ICE', modelKey}
+const state = { vehicles: [] };
 let tornadoChart=null, linesChart=null, catCharts={}, tabsActive=null;
 let lastResults=[];
 
@@ -445,7 +464,7 @@ const iceModels = [
 function modelList(type){return type==='EV'?evModels:iceModels;}
 function findModel(type,key){return modelList(type).find(m=>m.key===key)||modelList(type)[0];}
 
-/* Sync labels */
+/* Sync de labels y UI */
 ['km','r','H','mix_home','kwh100','p_kwh_home','p_kwh_valle','p_kwh_punta','share_valle','p_kwh_pub','l100','p_fuel',
  'mant_ev','mant_ice','seg_ev','seg_ice','pat_ev','pat_ice',
  'precio_ev','inc_ev','precio_ice','res_ev','res_ice','batt_kwh','batt_cost','ice_bump','tarifa_mode'
@@ -492,7 +511,7 @@ function syncLabels(){
   $('p_home_tou_wrap').style.display=(mode==='tou')?'block':'none';
 }
 
-/* Energía anual */
+/* Energía */
 function energiaEV(km,kwh100,mode,p_flat,p_valle,p_punta,share_valle,p_pub,mix_home){
   const kwh_year=(km/100)*kwh100;
   const m=Math.min(Math.max(mix_home/100,0),1);
@@ -516,7 +535,7 @@ function makeInputs(){
   };
 }
 
-/* NPV por opción con VP y Nominal */
+/* NPV por opción */
 function npvOption({H,r,km,precio,incentivo,mant,seguro,patentes,energia_fn,residual_pct,add_costs=[], type}){
   const rr=r/100; const capex0=precio-incentivo; const residual=precio*(residual_pct/100);
   let npv=capex0; let cumVP=[], acc=capex0;
@@ -556,7 +575,7 @@ function npvOption({H,r,km,precio,incentivo,mant,seguro,patentes,energia_fn,resi
   return {npv,eac,lco,capex0,residual,cumVP,byCatVP,byCatNom};
 }
 
-/* Eventos por tipo */
+/* Eventos específicos */
 function buildAddCosts(inp,type){
   const arr=[];
   if(type==='EV' && inp.chg_batt && inp.H>=8) arr.push({year:8,amount: inp.batt_kwh*inp.batt_cost});
@@ -615,7 +634,14 @@ function renderVehList(){
 }
 
 /* Cálculo principal */
+function ensureChartReady(){
+  if (window.Chart) return true;
+  alert('Cargando librería de gráficos… vuelve a intentar en un momento.');
+  return false;
+}
 function calc(){
+  if(!ensureChartReady()) return;
+
   const inp = makeInputs();
   const results=[];
   state.vehicles.forEach((v)=>{
@@ -625,7 +651,7 @@ function calc(){
       precio = mod.custom? inp.precio_ev : mod.price;
       residual_pct = mod.custom? inp.res_ev : (mod.residual ?? inp.res_ev);
       const kwh100 = mod.custom? inp.kwh100 : (mod.kwh100 ?? inp.kwh100);
-      if(mod.batt_kwh && !mod.custom) inp.batt_kwh = mod.batt_kwh; // actualizar evento batería
+      if(mod.batt_kwh && !mod.custom) inp.batt_kwh = mod.batt_kwh;
       energia_fn = ()=> energiaEV(inp.km,kwh100,inp.tarifa_mode,inp.p_kwh_home,inp.p_kwh_valle,inp.p_kwh_punta,inp.share_valle,inp.p_kwh_pub,inp.mix_home);
       mant=inp.mant_ev; seguro=inp.seg_ev; patentes=inp.pat_ev;
       results.push({id:v.id, label:`EV — ${mod.name}`, type:'EV',
@@ -655,7 +681,7 @@ function calc(){
   $('hdr_lco').textContent   = `CLP ${fmt2(win.out.lco)} / km`;
   $('hdr_sav').textContent   = second ? `CLP ${fmtN(second.out.eac - win.out.eac)}/año` : '—';
 
-  // Costo normalizado por vehículo
+  // Costo normalizado
   const rows = lastResults.map(r=>({label:r.label, lco:r.out.lco, npv:r.out.npv, eac:r.out.eac}));
   const bestLCO = win.out.lco;
   $('normCosts').innerHTML = `
@@ -681,7 +707,7 @@ function calc(){
     },
     options:{ responsive:true, scales:{ y:{title:{display:true,text:'Costo acumulado (CLP, VP)'}}}, plugins:{legend:{position:'bottom'}} }
   });
-  // Intersección aprox (ganador vs resto)
+  // Intersección aprox
   let earliest = null;
   for(let k=1;k<lastResults.length;k++){
     const a = win.out.cumVP, b = lastResults[k].out.cumVP;
@@ -701,7 +727,7 @@ function calc(){
   renderTabs(lastResults);
   renderCategorySparklines(lastResults, (tabsActive || lastResults[0].id));
 
-  // Tornado simple (1° vs 2°)
+  // Tornado
   const baseDelta = lastResults[1]? (lastResults[0].out.npv - lastResults[1].out.npv) : 0;
   renderTornado(makeInputs(), baseDelta);
 
@@ -725,7 +751,7 @@ function renderCategorySparklines(results, id){
   const r = results.find(x=>x.id===id) || results[0];
   const H = makeInputs().H;
   const years = Array.from({length:H}, (_,i)=> ''+(i+1));
-  const cats = r.out.byCatVP; // VP en sparklines
+  const cats = r.out.byCatVP;
   const cfg=(ctx,data)=> new Chart(ctx,{type:'line',data:{labels:years,datasets:[{data, tension:.3, pointRadius:0, borderWidth:2}]},options:{plugins:{legend:{display:false}}, scales:{x:{display:false},y:{display:false}}}});
   ['energy','mant','segs','depr'].forEach(k=>{ if(catCharts[k]) catCharts[k].destroy(); });
   catCharts.energy = cfg($('cat_energy').getContext('2d'), cats.energy);
@@ -734,7 +760,7 @@ function renderCategorySparklines(results, id){
   catCharts.depr   = cfg($('cat_depr').getContext('2d'),   cats.depr);
 }
 
-/* Tornado (sobre ΔNPV de 1° vs 2°) */
+/* Tornado */
 function renderTornado(inp, baseDelta){
   const dNPV = (tw)=> {
     const pair = simulatePair(inp, tw);
@@ -850,13 +876,18 @@ function renderTables(results){
 }
 
 /* Share, ayuda, cómo calculamos */
-$('shareUrl').addEventListener('click', ()=>{
+$('shareUrl').addEventListener('click', async ()=>{
   const inp=makeInputs();
   const params=new URLSearchParams();
   Object.entries(inp).forEach(([k,v])=> params.set(k,String(v)));
   params.set('veh', state.vehicles.map(v=>`${v.type}:${v.modelKey}`).join('|'));
   const url=`${location.origin}${location.pathname}?${params.toString()}`;
-  navigator.clipboard.writeText(url).then(()=> alert('Link copiado al portapapeles.'));
+  try{
+    await navigator.clipboard.writeText(url);
+    alert('Link copiado al portapapeles.');
+  }catch(e){
+    window.prompt('Copia manualmente el link:', url);
+  }
 });
 $('help').onclick=()=> $('modalHelp').classList.add('show');
 $('openHow').onclick=(e)=>{ e.preventDefault(); $('modalHow').classList.add('show'); };
@@ -874,24 +905,36 @@ $('addICE').onclick=()=> addVehicle('ICE');
 
 /* Init */
 (function init(){
+  // Defaults
   Object.entries(defaults).forEach(([k,v])=>{ if($(k)){ if(typeof v==='boolean') $(k).checked=v; else $(k).value=v; }});
-  for(const [k,v] of qs.entries()){
-    if(k==='veh') continue;
-    if($(k)) { if($(k).type==='checkbox') $(k).checked=(v==='true'||v==='1'); else $(k).value=(/^\d+(\.\d+)?$/.test(v)? Number(v): v); }
+  // URL saneada
+  for (const [k, vRaw] of qs.entries()) {
+    if (k === 'veh') continue;
+    const el = $(k);
+    if (!el) continue;
+    if (ENUMS[k]) { if (ENUMS[k].has(vRaw)) el.value = vRaw; continue; }
+    const numlike = /^\d+(\.\d+)?$/;
+    if (numlike.test(vRaw)) {
+      let n = Number(vRaw);
+      if (VALID_RANGES[k]) { const [mn, mx] = VALID_RANGES[k]; n = clamp(n, mn, mx); }
+      if (el.type === 'checkbox') el.checked = !!n; else el.value = n;
+    }
   }
   syncLabels();
+  // Vehículos desde URL o por defecto
   if(qs.get('veh')){
     const spec = qs.get('veh').split('|').slice(0,4);
+    state.vehicles = [];
     spec.forEach(s=>{
-      const [type,modelKey]=s.split(':');
-      if(type==='EV'||type==='ICE') addVehicle(type, modelKey);
+      const [type, modelKey]=s.split(':');
+      if (!['EV','ICE'].includes(type)) return;
+      const mdl = findModel(type, modelKey);
+      addVehicle(type, mdl ? mdl.key : 'custom');
     });
   }else{
     addVehicle('EV','byd_dolphin_mini');
     addVehicle('ICE','suzuki_swift');
   }
-  // Si quieres cálculo automático al cargar, descomenta:
-  // calc();
 })();
 </script>
 </body>
